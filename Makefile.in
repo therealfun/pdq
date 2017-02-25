@@ -1,0 +1,105 @@
+# Copyright 1999, 2000 Jacob A. Langford
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2, as 
+# published by the Free Software Foundation.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+SHELL = /bin/sh
+top_srcdir = @top_srcdir@
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+OPT=-g -O
+
+AR = ar
+AR_FLAGS = rc
+RANLIB = @RANLIB@
+
+CC = @CC@
+CFLAGS = -I. @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+INSTALL = @INSTALL@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+libdir = $(prefix)/lib
+infodir = $(prefix)/info
+
+SOURCES=src lpd
+DOCS=doc
+MISC=configure mkinstalldirs install-sh LICENSE
+OBJS=
+LIB_OBJS=
+
+VERSION=2.2.1
+# Don't forget to change version number in the source files, such
+# as in xpdq_main.c
+
+subdirs = src lpd doc etc
+
+all:
+	@for dir in ${subdirs}; do \
+	(cd $$dir && $(MAKE) all) \
+	|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+install:
+	@for dir in ${subdirs}; do \
+	(cd $$dir && $(MAKE) install) \
+	|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+clean:
+	@for dir in ${subdirs}; do \
+	(cd $$dir && $(MAKE) clean) \
+	|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+distclean: clean
+	/bin/rm -f Makefile config.h config.status config.cache config.log
+	@for dir in ${subdirs}; do \
+	(cd $$dir && $(MAKE) distclean) \
+	|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+snapshot: 
+	if test -e $(top_srcdir)/pdq-$(VERSION); then\
+	   rm -rf $(top_srcdir)/pdq-$(VERSION);\
+	fi;
+	grep $(VERSION) src/xpdq_main.c || ( \
+		echo "Hey dummy, change the version number in xpdq_main.c";\
+		exit 1;)
+	mkdir $(top_srcdir)/pdq-$(VERSION)
+	cp -R -d BUGS LICENSE README CHANGELOG INSTALL \
+		 aclocal.m4 Makefile.in configure.in \
+		 src/ lpd/ etc/ doc/ gs_drivers/\
+		 $(top_srcdir)/pdq-$(VERSION)
+	find $(top_srcdir)/pdq-$(VERSION) -name \*.o -exec rm {} \;
+	find $(top_srcdir)/pdq-$(VERSION) -name core -exec rm {} \;
+	find $(top_srcdir)/pdq-$(VERSION) -name Makefile -exec rm {} \;
+	find $(top_srcdir)/pdq-$(VERSION) -perm -100 -and -type f -exec rm {} \;
+	rm $(top_srcdir)/pdq-$(VERSION)/doc/xpdq.1
+	rm $(top_srcdir)/pdq-$(VERSION)/doc/pdq.1
+	rm $(top_srcdir)/pdq-$(VERSION)/doc/printrc.5
+	find $(top_srcdir)/pdq-$(VERSION)/doc/ -name \*html\* -exec rm {} \;
+	find $(top_srcdir)/pdq-$(VERSION)/gs_drivers/ -name gs-\* -exec rm {} \;
+	rm $(top_srcdir)/pdq-$(VERSION)/etc/printrc.example
+	cp -d configure install-sh mkinstalldirs $(top_srcdir)/pdq-$(VERSION)
+	cp gs_drivers/make_gs_drivers.pl \
+		$(top_srcdir)/pdq-$(VERSION)/gs_drivers
+	tar czf pdq-$(VERSION).tgz $(top_srcdir)/pdq-$(VERSION)
+	tar czf pdq-resources-$(VERSION).tgz ./etc/drivers ./etc/interfaces
+	

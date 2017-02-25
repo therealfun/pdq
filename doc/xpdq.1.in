@@ -1,0 +1,28 @@
+.TH XPDQ 1 "JANUARY 2000" Linux "pdq printing manuals"
+.SH NAME
+xpdq \- graphical print tool
+.SH SYNOPSIS
+.BI "xpdq [" file "]"
+.SH DESCRIPTION
+.B xpdq
+is a graphical print tool.  It can be used to print and monitor jobs, and
+to create and modify printers.
+.SH OPTIONS
+There are no options, other than options of the underlying X11 toolkit and
+widget set (in this case gtk).
+.SH FILES
+.I @printrc_file@
+.RS 
+The system wide configuration file.  See 
+.BR printrc (5) 
+for further details.
+.RE
+.I ~/.printrc
+.RS
+Per user configuration file. See
+.BR printrc (5)
+for further details.
+.SH AUTHOR
+Jacob A. Langford <langford@uiuc.edu>
+.SH SEE ALSO
+pdq(1), printrc(5), pdqstat(1)

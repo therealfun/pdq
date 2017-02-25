@@ -1,0 +1,54 @@
+interface tcp-port {
+   
+   help "This is one of the first interfaces supported by standalone
+         network printers and print servers.  The device simply
+         listens for a TCP connection on a certain port, and sends
+         data from any connection to the printer.\n
+	 
+	 Use bsd-lpd if you can; it has better status messages."
+   
+   required_args "REMOTE_HOST"
+   
+   argument { 
+      var = "REMOTE_HOST"
+      desc = "Remote host"
+      help = "This is IP name or number of the print server."
+   }
+   
+   argument { 
+      var = "REMOTE_PORT"
+      def_value = "9100"
+      desc = "Remote port"
+      help = "This is the TCP port number on the print server that the
+              print job should be sent to.  Most JetDirect cards, and
+              clones, accept jobs on port 9100 (or 9101 for port 2, 
+              etc)."  
+   }
+   
+
+   send_exec {#!/usr/bin/perl
+	require 5.002;                 #stolen from perl documentation
+	use strict;
+	use Socket;
+	my ($remote,$port, $iaddr, $paddr, $proto, $line); 
+	      
+	$remote  = $ENV{'REMOTE_HOST'} || die "must supply host";
+	$port    = $ENV{'REMOTE_PORT'} || 9100; 
+	if ($port =~ /\D/) { $port = getservbyname($port, 'tcp') }
+	die "No port" unless $port;
+	$iaddr   = inet_aton($remote) || die "no host: $remote";
+	$paddr   = sockaddr_in($port, $iaddr);
+	     
+	$proto   = getprotobyname('tcp');
+	socket(SOCK, PF_INET, SOCK_STREAM, $proto)  || die "socket: $!";
+	connect(SOCK, $paddr)    || die "connect: $!";
+        open (INPUT, "<$ENV{'INPUT'}") || die "file open";
+	while (<INPUT>) {
+	   print SOCK;
+	}    
+	close (SOCK)            || die "socket close: $!";
+	close (INPUT)           || die "file close: $!";
+	exit;
+   }
+
+}

@@ -1,0 +1,225 @@
+driver "gs-pjxltest" {
+   
+	help "Designed for HP PaintJet XL"
+
+	requires "gs"
+
+	verify_exec {
+		(gs -h |grep -q pjxltest) || 
+		(echo "Ghostscript driver pjxltest is required"; exit 1)
+	}
+
+	option {
+		desc = "resolution"
+		var = OPTION_1
+
+		choice "300x300" {
+			value = "-r300x300"
+			desc = "300x300"
+			help = "Print at 300x300 dpi"
+		}
+		choice "600x600" {
+			value = "-r600x600"
+			desc = "600x600"
+			help = "Print at 600x600 dpi"
+		}
+	}
+
+	option {
+		desc = "bits per pixel"
+		var = OPTION_2
+
+		default_choice "bpp16"
+
+		choice "bpp1" {
+			value = "-dBitsPerPixel=1"
+			desc = "1"
+			help = "A standard Ghostscript monochrome driver, 
+				using black ink (by installing the separate mono cartridge in the case of the DeskJet 
+				500C, or automatically for the other printers). "
+		}
+		choice "bpp3" {
+			value = "-dBitsPerPixel=3"
+			desc = "3"
+			help = "A standard Ghostscript colour driver, 
+				using internal dithering. This is fast to compute and to print, 
+				but the clustered dithering can lose some detail and colour fidelity. "
+		}
+		choice "bpp8" {
+			value = "-dBitsPerPixel=8"
+			desc = "8"
+			help = "An \"error-diffusion\" monochrome driver which uses 
+				Floyd-Steinberg dithering to print greyscale images. The patterns 
+				are much more randomised than with the normal clustered dithering, 
+				but the data files can be much larger and somewhat slower to print."
+		}
+		choice "bpp16" {
+			value = "-dBitsPerPixel=16"
+			desc = "16"
+			help = "A \"cheaper\" version of the 24-bit driver, 
+				which generates Floyd-Steinberg colour dithered output using 
+				the minimum memory (this may be helpful when using Ghostscript 
+				has not been compiled using a 16-bit build environment). The 
+				quality can be almost as good as the 24-bit version."
+		}
+		choice "bpp24" {
+			value = "-dBitsPerPixel=24"
+			desc = "24"
+			help = "A high-quality colour driver using 
+				Floyd-Steinberg dithering for maximum detail and colour 
+				range. However, it is very memory-intensive, and thus can be slow 
+				to compute. It tends to produce rather larger raw data files, 
+				so they can also take longer to print."
+		}
+		choice "bpp32" {
+			value = "-dBitsPerPixel=32"
+			desc = "32"
+			help = "Only for the DeskJet 550C, which uses 
+				the black cartridge and the colour cartridge simultaneously 
+				(that is, CMYK printing). This printer can both be faster and 
+				give higher quality than the DeskJet 500C, because of the true 
+				black ink. (Note that the 24-bit mode also permits CMYK printing 
+				on this printer, and uses less memory.
+				Any differences between 
+				24-bit and 32-bit should be small.)"
+		}
+	}
+
+	option {
+		desc = "print quality"
+		var = OPTION_3
+
+		default_choice "normal"
+
+		choice "fast" {
+			value = "-dPrintQuality=-1"
+			desc = "fast"
+			help = "Fast mode reduces ink 
+				usage and uses single-pass operation for some media types."
+		}
+		choice "normal" {
+			value = "-dPrintQuality=0"
+			desc = "normal "
+			help = ""
+		}
+		choice "presentation" {
+			value = "-dPrintQuality=1"
+			desc = "presentation"
+			help = "Presentation 
+				uses more ink and the maximum number of passes, giving slowest 
+				printing for highest quality "
+		}
+	}
+
+	option {
+		desc = "render type"
+		var = OPTION_4
+
+		default_choice "render4"
+
+		choice "render0" {
+			value = "-dRenderType=0"
+			desc = "driver does dithering "
+			help = ""
+		}
+		choice "render1" {
+			value = "-dRenderType=1"
+			desc = "snap to primaries "
+			help = ""
+		}
+		choice "render2" {
+			value = "-dRenderType=2"
+			desc = "snap black to white, others to black "
+			help = ""
+		}
+		choice "render3" {
+			value = "-dRenderType=3"
+			desc = "ordered dither "
+			help = ""
+		}
+		choice "render4" {
+			value = "-dRenderType=4"
+			desc = "error diffusion "
+			help = ""
+		}
+		choice "render5" {
+			value = "-dRenderType=5"
+			desc = "monochrome ordered dither "
+			help = ""
+		}
+		choice "render6" {
+			value = "-dRenderType=6"
+			desc = "monochrome error diffusion "
+			help = ""
+		}
+		choice "render7" {
+			value = "-dRenderType=7"
+			desc = "cluster ordered dither "
+			help = ""
+		}
+		choice "render8" {
+			value = "-dRenderType=8"
+			desc = "monochrome cluster ordered dither "
+			help = ""
+		}
+	}
+
+
+
+	option {
+		var = FIX_STAIRCASE;
+		desc = "staircase text correction"
+		choice scyes {
+			value = "YES"
+			desc = "fix staircased text problems"
+			help = "Fixes printouts\n\t\tthat look\n\t\t\t\tlike this!"
+		}
+		choice scno {
+			value = "NO"
+			desc = "leave text alone"
+		}
+	}
+
+	argument {
+		var = "paper"
+		desc = "paper size"
+		help = "Set papersize to letter, legal, a3, a4, etc..."
+		def_value = "letter"
+	}			
+
+
+	language_driver postscript {}    # Nothing to do...
+
+	language_driver text {
+		convert_exec = {
+		     if [ "$FIX_STAIRCASE" = "YES" ]; then
+			sed 's/$//' $INPUT > $OUTPUT;
+		     else
+			ln -s $INPUT $OUTPUT;
+		     fi
+		     touch $OUTPUT.ok;  # Tell filter_exec not to invoke gs
+		}
+	}
+
+	filter_exec {
+		if ! test -e $INPUT.ok; then
+         		gs \
+             			-q -dBATCH -dSAFER -dNOPAUSE \
+				-sDEVICE=pjxltest \
+	     			-sOutputFile=$OUTPUT \
+				-sPaperSize=$paper \
+				$OPTION_1 \
+				$OPTION_2 \
+				$OPTION_3 \
+				$OPTION_4 \
+				$INPUT
+	     		if ! test -e $OUTPUT; then 
+	        		echo "ABORTED: Ghostscript had no output." >> $STATUS
+				exit 1
+             		fi
+             	else
+			ln -s $INPUT $OUTPUT;
+             	fi
+	}
+
+}

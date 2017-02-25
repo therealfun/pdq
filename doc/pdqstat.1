@@ -1,0 +1,23 @@
+.TH PDQ_STAT 1 "APRIL 1999" Linux "pdq printing manuals"
+.SH NAME
+pdqstat \- show status of recent jobs printed by pdq
+.SH SYNOPSIS
+.BI "pdqstat"
+.SH DESCRIPTION
+.B pdqstat 
+shows status of recent jobs printed by pdq.
+.SH OPTIONS
+The behavior of
+.B pdqstat
+is highly configurable.  In other words, it is a script that
+you are welcome to rewrite!
+.SH BUGS
+This utility does not parse the pdq resource files for 
+.BR job_dir , 
+but assumes that it is
+.IR "~/.printjobs/" .
+This is a 21 line perl script.  What do you expect?
+.SH AUTHOR
+Jacob A. Langford <langford@uiuc.edu>
+.SH SEE ALSO
+pdq(1), xpdq(1), printrc(5)

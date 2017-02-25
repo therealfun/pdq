@@ -1,0 +1,30 @@
+driver generic-text-only { 
+
+   help "Use this driver as a simple text-printer driver."
+
+   option {
+      var = FIX_STAIRCASE;
+      desc = "staircase text correction"
+      choice scyes {
+         value = "YES"
+	 desc = "fix staircased text problems"
+	 help = "Fixes printouts\n\t\tthat look\n\t\t\t\tlike this!"
+      }
+      choice scno {
+         value = "NO"
+	 desc = "leave text alone"
+      }
+   }
+
+   language_driver text {
+      convert_exec = {
+	 if [ "$FIX_STAIRCASE" = "YES" ]; then
+	    sed 's/$//' $INPUT > $OUTPUT;
+	 else
+	    ln -s $INPUT $OUTPUT;
+	 fi
+      }
+   }
+
+}
+

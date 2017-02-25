@@ -1,0 +1,302 @@
+driver hp-2500-cm { 
+   
+   help "This is for the HP-2500 CM, or an HP-2500 with PostScript module.
+	 This driver handles text, postscript, and images"
+
+   argument { 
+      var = "BRIGHTNESS"
+      desc = "Percentage brightness"
+      help = "Adjustment to standard brightness level (percentage)"
+      def_value = "0"
+   }
+   argument { 
+      var = "COPIES"
+      desc = "Number of Copies"
+      help = "Number of copies to print"
+      def_value = "1"
+   }
+    
+   option { 
+      var = "PRINT_QUALITY"
+      desc = "Print quality"
+      choice "econofast" { 
+         value = "1"
+         desc = "Economy / Fast"
+      }
+      choice "normal" { 
+         value = "2"
+         desc = "Normal"
+      }
+      choice "best" { 
+         value = "3"
+         desc = "Best"
+      }
+   }
+
+   option { 
+      var = "COLOR_MODEL"
+      desc = "Color model"
+      choice "color" { 
+         value = "/DeviceCMYK"
+         desc = "Normal color"
+      }
+      choice "gray" { 
+         value = "/DeviceGray"
+         desc = "Print color as gray"
+      }
+   }
+
+   option { 
+      var = "COLOR_SMART"
+      desc = "Color management options"
+      choice "enhancedcolor" { 
+         value = "/Enhanced"
+         desc = "Enhanced Native / Pantone"
+      }
+      choice "colorsmart" { 
+         value = "true"
+         desc = "ColorSmart Business Graphics"
+      }
+      choice "nocolorsmart" { 
+         value = "false"
+         desc = "No Color Adjustment"
+      }
+      choice "swopcolor" { 
+         value = "/SWOP"
+         desc = "SWOP Emulation"
+      }
+   }
+
+   option { 
+      var = "RENDER_INTENT"
+      desc = "Rendering intent"
+      choice "perceptual" { 
+         value = "(Perceptual)"
+         desc = "Perceptual rendering"
+      }
+      choice "colorimetric" { 
+         value = "(Colorimetric)"
+         desc = "Colorimetric rendering"
+      }
+      choice "saturation" { 
+         value = "(Saturation)"
+         desc = "Saturation rendering"
+      }
+   }
+
+   option { 
+      var = "MEDIA_TYPE"
+      desc = "Media type"
+      choice "plain" { 
+         value = "(Bond)"
+         desc = "Plain Paper"
+      }
+      choice "rapiddrytransp" { 
+         value = "(Rapt)"
+         desc = "HP Rapid-Dry Transparency"
+      }
+      choice "transparency" { 
+         value = "(Tran)"
+         desc = "Transparency"
+      }
+      choice "premiuminkjet" { 
+         value = "(Spec)"
+         desc = "HP Premium Injet Paper"
+      }
+      choice "inkjetheavyweight" { 
+         value = "(Spec)"
+         desc = "HP Premium Injet Heavyweight Paper"
+         help = "Same driver as premium inkjet."
+      }
+      choice "premiumphoto" { 
+         value = "(Glos)"
+         desc = "HP Premium Photo Paper"
+      }
+      choice "ironontshirt" { 
+         value = "(Tran)"
+         desc = "HP Iron-on T-shirt Transfers"
+         help = "Same driver as transparency."
+      }
+   }
+
+   option { 
+      var = "PAGE_PRIORITY"
+      desc = "Paper tray options"
+      choice "tray1" { 
+         value = "[2 0 1]"
+         desc = "Tray 1"
+      }
+      choice "tray2" { 
+         value = "[0 1 2]"
+         desc = "Tray 2"
+      }
+      choice "tray3" { 
+         value = "[1 0 2]"
+         desc = "Tray 3"
+      }
+   }
+
+   option { 
+      var = "ENSCRIPT_FLAGS" 
+      desc = "Enscript plain text options"
+      choice "text" { 
+         value = "-M Letterdj -h"
+         desc = "Standard text"
+         help = "Courier 12, no headers, "
+      }
+      choice "r2" { 
+         value = "-M Letterdj -r2 "
+         desc = "Two-column, rotated"
+         help = "Two-column, rotated, Courier 7, headers"
+      }
+   }
+
+   option { 
+      var = "GS_SHINGLING" 
+      desc = "Ghostscript Shingling number"
+      choice "multipass2" { 
+         value = "-dShingling=2"
+         desc = "25% per pass (best)"
+         help = "Controls multipass overlap"
+      }
+      choice "multipass1" { 
+         value = "-dShingling=1"
+         desc = "50% per pass"
+         help = "Controls multipass overlap"
+      }
+      choice "multipass0" { 
+         value = "-dShingling=0"
+         desc = "100% per pass (worst)"
+         help = "Controls multipass overlap"
+      }
+   }
+
+
+   option { 
+      var = "GS_RESOLUTION" 
+      desc = "Ghostscript Resolution"
+      default_choice = 600
+      choice "600" { 
+         value = "-r600x600"
+         desc = "600x600"
+      }
+      choice "300" { 
+         value = "-r300x300"
+         desc = "300x300"
+      }
+   }
+   option { 
+      var = "GS_DEPLETION" 
+      desc = "Ghostscript Depletion number"
+      default_choice = depletion1
+      choice "depletion0" { 
+         value = "-dDepletion=0"
+         desc = "0%"
+         help = "Controls dot removal"
+      }
+      choice "depletion1" { 
+         value = "-dDepletion=1"
+         desc = "25%"
+         help = "Controls dot removal"
+      }
+      choice "depletion2" { 
+         value = "-dDepletion=2"
+         desc = "50%"
+         help = "Controls dot removal"
+      }
+   }
+   option { 
+      var = "PS_RENDER" 
+      desc = "PostScript rendering"
+      desc = "Use Ghostscript to handle PostScript"
+      choice "ps" {
+         value = "native"
+         desc = "native"
+         help = "Use this if you want PostScript to be sent directly
+                 to the printer.  (May be slow.)"
+      }
+      choice "gs" {
+         value = "gs"
+         desc = "GhostScript"
+         help = "Use this if you want PostScript to be rasterized
+                 by GhostScript."
+      }
+   }
+
+
+   language_driver ps { 
+      filetype_regx = "postscript"
+   }
+
+   language_driver jpeg {
+      convert_exec { djpeg $INPUT | pnmtops > $OUTPUT}
+   }
+
+   language_driver image {
+      convert_exec { anytopnm $INPUT | pnmtops > $OUTPUT}
+   }
+
+   language_driver text {
+      convert_exec { enscript -o $OUTPUT \
+                        -b "$FILENAME %W Page \$% of \$="  \
+                        $ENSCRIPT_FLAGS $INPUT 
+		     exit 0}
+   }
+
+   filter_exec {
+
+	if [ "$PS_RENDER" = "gs" ]; then 
+         gs -sDEVICE=cdj550 \
+             -q -dBATCH -dSAFER -dNOPAUSE \
+	     $GS_RESOLUTION $GS_SHINGLING $GS_DEPLETION  \
+	     -sOutputFile=$OUTPUT $INPUT
+	     if ! test -e $OUTPUT; then 
+	        echo "Ghostscript had no output."
+		exit 1
+             fi
+	else  
+      echo "%!PS" > $OUTPUT;
+      echo "statusdict begin" >> $OUTPUT;
+
+      echo "<</InputAttributes " >> $OUTPUT
+      echo "   <</Priority $PAGE_PRIORITY>> " >> $OUTPUT
+      echo ">> setpagedevice" >> $OUTPUT
+
+      echo "<</MediaType $MEDIA_TYPE>> setpagedevice" >> $OUTPUT
+
+      echo "<</NumCopies $COPIES>> setpagedevice" >> $OUTPUT
+
+      echo "<<" >> $OUTPUT
+      echo "    /PostRenderingEnhance true" >> $OUTPUT
+      echo "    /PostRenderingEnhanceDetails" >> $OUTPUT
+      echo "    << " >> $OUTPUT
+      echo "            /PrintQuality $PRINT_QUALITY" >> $OUTPUT
+      echo "            /Type 11 " >> $OUTPUT
+      echo "    >>" >> $OUTPUT
+      echo ">> setpagedevice" >> $OUTPUT
+
+      echo "globaldict /ColorSmartColorMatching known {" >> $OUTPUT
+      echo "   $COLOR_SMART ColorSmartColorMatching" >> $OUTPUT
+      echo "   <<>> setpagedevice" >> $OUTPUT
+      echo "} if" >> $OUTPUT
+
+      echo "userdict /UserRenderIntent $RENDER_INTENT put">> $OUTPUT
+      echo "   <<>> setpagedevice" >> $OUTPUT
+
+      echo "$BRIGHTNESS dup dup 50 lt exch -50 gt and" >> $OUTPUT
+      echo "{ 0.01 mul 0.5 add ln 0.5 ln exch div }" >> $OUTPUT
+      echo "{ pop 1 } ifelse 1 exch div { 0 exp } dup" >> $OUTPUT
+      echo "0 4 -1 roll put settransfer" >> $OUTPUT
+
+      echo "end" >> $OUTPUT
+
+           cat $INPUT >> $OUTPUT
+	fi   
+
+
+
+   }
+
+}
+
+

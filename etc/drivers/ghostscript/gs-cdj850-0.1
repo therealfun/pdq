@@ -1,0 +1,157 @@
+driver "gs-cdj850" {
+   
+	help "This driver supports HP DeskJet 850, 855, 870, and 1100 printers"
+
+	requires "gs"
+
+	verify_exec {
+		(gs -h |grep -q cdj850) || 
+		(echo "Ghostscript driver cdj850 is required"; exit 1)
+	}
+
+	option {
+		desc = "quality"
+		var = OPTION_1
+
+		default_choice "normal"
+
+		choice "draft" {
+			value = "-dQuality=-1"
+			desc = "draft"
+			help = "Print quality is draft"
+		}
+		choice "normal" {
+			value = "-dQuality=0"
+			desc = "normal"
+			help = "Print quality is normal"
+		}
+		choice "presentation" {
+			value = "-dQuality=1"
+			desc = "presentation"
+			help = "Print quality is best"
+		}
+	}
+
+	option {
+		desc = "paper type"
+		var = OPTION_2
+
+		default_choice "plainpaper"
+
+		choice "plainpaper" {
+			value = "-dPapertype=0"
+			desc = "plain"
+			help = "Adjusts printer for plain paper"
+		}
+		choice "bondpaper" {
+			value = "-dPapertype=1"
+			desc = "bond"
+			help = "Adjusts printer for bond paper"
+		}
+		choice "specialpaper" {
+			value = "-dPapertype=2"
+			desc = "special"
+			help = "Adjusts printer for special paper"
+		}
+		choice "glossyfilm" {
+			value = "-dPapertype=3"
+			desc = "glossy film"
+			help = "Adjusts printer for glossy film"
+		}
+		choice "transparency" {
+			value = "-dPapertype=4"
+			desc = "transparency"
+			help = "Adjusts printer for transparencies"
+		}
+	}
+
+	option {
+		desc = "return status"
+		var = OPTION_3
+
+		default_choice "return"
+
+		choice "return" {
+			value = "-dRetStatus=1"
+			desc = "on"
+			help = "C-RET on"
+		}
+		choice "noreturn" {
+			value = "-dRetStatus=0"
+			desc = "off"
+			help = "C-RET off"
+		}
+	}
+
+
+
+	option {
+		var = FIX_STAIRCASE;
+		desc = "staircase text correction"
+		choice scyes {
+			value = "YES"
+			desc = "fix staircased text problems"
+			help = "Fixes printouts\n\t\tthat look\n\t\t\t\tlike this!"
+		}
+		choice scno {
+			value = "NO"
+			desc = "leave text alone"
+		}
+	}
+
+	argument {
+		var = "bpp"
+		desc = "bits per pixel"
+		help = "Bits per pixel (1 - 32), higher for more quality"
+		def_value = "32"
+	}			
+	argument {
+		var = "gamma"
+		desc = "gamma correction"
+		help = "Sets the master gamma correction (1.0 - 10.0)"
+		def_value = "1.0"
+	}			
+	argument {
+		var = "paper"
+		desc = "paper size"
+		help = "Set papersize to letter, legal, a3, a4, etc..."
+		def_value = "letter"
+	}			
+
+
+	language_driver postscript {}    # Nothing to do...
+
+	language_driver text {
+		convert_exec = {
+		     if [ "$FIX_STAIRCASE" = "YES" ]; then
+			sed 's/$//' $INPUT > $OUTPUT;
+		     else
+			ln -s $INPUT $OUTPUT;
+		     fi
+		     touch $OUTPUT.ok;  # Tell filter_exec not to invoke gs
+		}
+	}
+
+	filter_exec {
+		if ! test -e $INPUT.ok; then
+         		gs \
+             			-q -dBATCH -dSAFER -dNOPAUSE \
+				-sDEVICE=cdj850 \
+	     			-sOutputFile=$OUTPUT \
+				-sBitsPerPixel=$bpp \
+				-dMasterGamma=$gamma \
+				-sPaperSize=$paper \
+				$OPTION_1 \
+				$OPTION_2 \
+				$OPTION_3 \
+				$INPUT
+	     		if ! test -e $OUTPUT; then 
+	        		echo "ABORTED: Ghostscript had no output." >> $STATUS
+				exit 1
+             		fi
+             	else
+			ln -s $INPUT $OUTPUT;
+             	fi
+	}
+
+}

@@ -1,0 +1,243 @@
+driver hp-4050-tn { 
+   
+   # Adapted from generic-postscript-1.1
+   # Papertray selection fixed by Derek Smithies <dereks@ibm.net>
+
+   help "For HP 4050 TN laser. This driver converts all files, including 
+         text, to PostScript."
+
+   option { 
+      var = "DUPLEX"
+      desc = "Duplex options"
+      choice "duplex_default" { 
+         desc = "Use printer default"
+         help = "Print in the default mode for your printer"  
+      }
+      choice "duplex" { 
+	 value = "force_duplex"
+         desc = "Force two-sided"
+         help = "Set the printer to duplex mode"
+      }
+      choice "simplex" { 
+	 value = "force_simplex"
+         desc = "Force one-sided"
+         help = "Set the printer to simplex mode"
+      }
+   }
+
+   option { 
+      var = "TUMBLE"
+      desc = "Tumble options"
+      choice "tumble_default" { 
+         desc = "Use printer default"
+         help = "Print in the default mode for your printer"  
+      }
+      choice "tumble" { 
+	 value = "force_tumble"
+         desc = "Force tumble"
+         help = "Set the printer to tumble mode"
+      }
+      choice "notumble" { 
+	 value = "force_notumble"
+         desc = "Force no tumble"
+         help = "Set the printer to no tumble mode"
+      }
+   }
+
+   option { 
+      var = "PAPER_TRAY"
+      desc = "Paper tray options"
+      choice "tumble_default" { 
+         desc = "Use printer default"
+         help = "Print from the default paper tray for your printer"  
+      }
+      choice "tray1" { 
+	 value = "force_tray1"
+         desc = "Tray 1"
+         help = "Print on paper from tray 1"
+      }
+      choice "tray2" { 
+	 value = "force_tray2"
+         desc = "Tray 2"
+         help = "Print on paper from tray 2"
+      }
+      choice "tray3" { 
+	 value = "force_tray3"
+         desc = "Tray 3"
+         help = "Print on paper from tray 3"
+      }
+      choice "tray4" { 
+	 value = "force_tray4"
+         desc = "Tray 4"
+         help = "Print on paper from tray 4"
+      }
+      choice "tray23" { 
+	 value = "force_tray23"
+         desc = "Tray 2 then tray 3"
+         help = "Use tray 2, then tray 3 for following pages"
+      }
+   }
+
+
+   option { 
+      var = "PAPER_SIZE" 
+      desc = "Paper size"
+      choice "letter" { 
+	 value = "letter"
+         desc = "Letter"
+      }
+      choice "legal" { 
+	 value = "legal"
+         desc = "legal"
+      }
+      choice "A4" { 
+	 value = "A4"
+         desc = "A4"
+      }
+   }
+
+   language_driver ps { 
+      filetype_regx = "postscript"
+   }
+
+   language_driver text {
+      convert_exec {#!/bin/sh
+
+	if [ "$PAPER_SIZE" = "legal" ]; then 
+		PAGE_HEIGHT="14"
+		LINES_PER_PAGE="85"
+	elif [ "$PAPER_SIZE" = "A4" ]; then 
+		PAGE_HEIGHT="11.7"
+		LINES_PER_PAGE="70"
+	else  
+		PAGE_HEIGHT="11"
+		LINES_PER_PAGE="66"
+	fi   
+
+        cat > $OUTPUT <<EOF
+		%!PS
+		/page_height {$PAGE_HEIGHT} def
+		/lpp {$LINES_PER_PAGE} def
+		/Courier findfont 12 scalefont setfont 
+		/inch {72 mul} def
+		/dy  page_height .5 sub lpp .5 add div inch def 
+		/l_marg .4 inch def
+		/t_marg page_height .25 sub inch dy sub def 
+		/newp { l_marg t_marg moveto /lc 0 def } def
+		/ceop { lc 66 ge { showpage newp } if /lc lc 1 add def } def
+		/crlf { currentpoint exch pop dy sub l_marg exch moveto } def
+		newp 
+		%%EndProlog
+EOF
+
+
+	expand $INPUT |
+	tr -s '[\001-\011][\016-\037]' '@' |
+	sed 	-e 's/\\/\\\\/g' -e 's/[()]/\\&/g' \
+		-e 's/^/ceop (/' -e 's/$/) show crlf/' >> $OUTPUT 
+
+	echo "%%Trailer" >> $OUTPUT
+	echo "showpage" >> $OUTPUT
+      }
+   }
+
+   filter_exec {
+      echo "%!PS" > $OUTPUT;
+
+      echo "statusdict begin" >> $OUTPUT;
+
+      if [ "$DUPLEX" = "force_duplex" ]; then
+ 	 echo "   statusdict /setduplexmode known " >> $OUTPUT;
+         echo "   {true setduplexmode} if" >> $OUTPUT;
+      elif [ "$DUPLEX" = "force_simplex" ]; then	
+ 	 echo "   statusdict /setduplexmode known " >> $OUTPUT;
+         echo "   {false setduplexmode} if" >> $OUTPUT;
+      fi
+
+      if [ "$TUMBLE" = "force_tumble" ]; then
+ 	 echo "   statusdict /settumble known {true settumble} if" >> $OUTPUT;
+      elif [ "$TUMBLE" = "force_notumble" ]; then	
+ 	 echo "   statusdict /settumble known {false settumble} if" >> $OUTPUT;
+      fi
+      if [ "$PAPER_TRAY" = "force_tray23" ]; then
+         echo "%   >>>>>>>>>>> " $PAPER_TRAY >> $OUTPUT;
+         echo "[{ ">> $OUTPUT;
+         echo "%%BeginFeature: *InputSlot Tray 2 " >> $OUTPUT;
+         echo " <</ManualFeed false /MediaPosition 0>> setpagedevice">>$OUTPUT;
+         echo "%%EndFeature " >> $OUTPUT;
+         echo "  } stopped cleartomark ">> $OUTPUT;
+         echo "end" >> $OUTPUT
+         if [ "$DUPLEX" = "force_duplex" ]; then
+            psselect 2 $INPUT >> $OUTPUT;
+            psselect 1 $INPUT >> $OUTPUT;
+         else
+            echo "596 842 translate" >> $OUTPUT;
+            echo "180 rotate " >> $OUTPUT;
+            psselect 1 $INPUT   >> $OUTPUT;
+         fi
+         echo "%!PS" >> $OUTPUT;
+         echo "statusdict begin" >> $OUTPUT;
+         echo "[{ " >> $OUTPUT;
+         echo "%%BeginFeature: *InputSlot  Tray 3 " >> $OUTPUT;
+         echo "currentpagedevice /InputAttributes get 1 known ">>$OUTPUT;
+         echo "{<</ManualFeed false /MediaPosition 1>> setpagedevice} ">>$OUTPUT;
+         echo "{currentpagedevice /InputAttributes get 5 known ">>$OUTPUT;
+         echo "{<</ManualFeed false /MediaPosition 5>> setpagedevice}if}">>$OUTPUT;
+         echo "ifelse " >>$OUTPUT;
+         echo "%%EndFeature ">>$OUTPUT;
+         echo "} stopped cleartomark ">> $OUTPUT;
+         if [ "$DUPLEX" = "force_duplex" ]; then
+ 	      echo "   statusdict /setduplexmode known " >> $OUTPUT;
+              echo "   {true setduplexmode} if" >> $OUTPUT;
+         elif [ "$DUPLEX" = "force_simplex" ]; then	
+ 	      echo "   statusdict /setduplexmode known " >> $OUTPUT;
+              echo "   {false setduplexmode} if" >> $OUTPUT;
+         fi
+
+         if [ "$TUMBLE" = "force_tumble" ]; then
+ 	      echo "   statusdict /settumble known {true settumble} if" >> $OUTPUT;
+         elif [ "$TUMBLE" = "force_notumble" ]; then	
+ 	      echo "   statusdict /settumble known {false settumble} if" >> $OUTPUT;
+         fi
+      elif [ "$PAPER_TRAY" = "force_tray1" ]; then
+ 	 echo "[{ ">> $OUTPUT;
+         echo "%%BeginFeature: *InputSlot Tray 1" >> $OUTPUT;
+         echo "<</ManualFeed true /MediaPosition 3>> setpagedevice ">> $OUTPUT;
+         echo "%%EndFeature " >> $OUTPUT;
+         echo "} stopped cleartomark " >> $OUTPUT;
+      elif [ "$PAPER_TRAY" = "force_tray2" ]; then
+         echo "[{ ">> $OUTPUT;
+         echo "%%BeginFeature: *InputSlot Tray 2 " >> $OUTPUT;
+         echo " <</ManualFeed false /MediaPosition 0>> setpagedevice">>$OUTPUT;
+         echo "%%EndFeature " >> $OUTPUT;
+         echo "  } stopped cleartomark ">> $OUTPUT;
+      elif [ "$PAPER_TRAY" = "force_tray3" ]; then	
+         echo "% hello there " $PAPER_TRAY >> $OUTPUT;
+         echo "[{ " >> $OUTPUT;
+         echo "%%BeginFeature: *InputSlot  Tray 3 " >> $OUTPUT;
+         echo "currentpagedevice /InputAttributes get 1 known ">>$OUTPUT;
+         echo "{<</ManualFeed false /MediaPosition 1>> setpagedevice} ">>$OUTPUT;
+         echo "{currentpagedevice /InputAttributes get 5 known ">>$OUTPUT;
+         echo "{<</ManualFeed false /MediaPosition 5>> setpagedevice}if}">>$OUTPUT;
+         echo "ifelse " >>$OUTPUT;
+         echo "%%EndFeature ">>$OUTPUT;
+         echo "} stopped cleartomark ">> $OUTPUT;
+     elif [ "$PAPER_TRAY" = "force_tray4" ]; then	
+ 	 echo "   statusdict /setpapertray known " >> $OUTPUT;
+         echo "   {4 setpapertray} if" >> $OUTPUT;
+      fi
+
+      echo "end" >> $OUTPUT
+      
+      if [ "$PAPER_TRAY" = "force_tray23" ]; then
+         if [ "$DUPLEX" = "force_duplex" ]; then
+              psselect 3- $INPUT >> $OUTPUT;
+            else
+              psselect 2- $INPUT >> $OUTPUT;
+         fi
+      else
+         cat $INPUT >> $OUTPUT
+      fi 
+   }
+
+}

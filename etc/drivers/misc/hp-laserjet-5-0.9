@@ -1,0 +1,123 @@
+driver "hp-laserjet-5" {
+
+        #Author Alin Vaida <alinv@rosilva.ro>  
+        #Tested on HP LaserJet 5N non-PS, with duplexing unit
+        
+        help "This is for the HP-LaserJet-5N, or an HP-LAserJet-5 without PostScript module.
+                 This driver handles text and postscript"
+        
+  
+  requires "gs"                 #
+  requires "xxd"                # For the duplexing option (on RedHat, it comes in vim-common.rpm)
+  requires "mpage"              # For multiple pages per sheet
+
+  option {
+    var = "RES"
+    desc = "Resolution"
+    choice "RES600" {
+        value = "600"
+        desc = "600x600"
+        help = ""
+    }
+    choice "RES300" {
+        value ="300"
+        desc = "300x300"
+        help = ""
+    }
+  }
+
+  option { 
+     var = "DUPLEX"
+     desc = "Duplex options"
+     choice "NNE" { 
+        desc = "None"
+        help = "Print in the default mode for your printer"  
+     }
+     choice "duplex" { 
+                value = "FLE"
+        desc = "Flip on long edge"
+        help = ""
+     }
+     choice "simplex" { 
+                value = "FSE"
+        desc = "Flip on short edge"
+        help = ""
+     }
+  }
+
+
+  option { 
+    var = "PAPER_SIZE" 
+    desc = "Paper size"
+    choice "A4" { 
+                value = "a4"
+        desc = "A4"
+    }
+        choice "letter" { 
+                value = "letter"
+                desc = "letter"
+    }
+    choice "legal" { 
+                value = "legal"
+        desc = "legal"
+    }
+  }   
+
+  option { 
+    var = "PPS"
+    desc = "Pages per sheet"
+    choice "1" { 
+        value= "-1" 
+        desc = "Use printer default"
+        help = ""  
+     }
+    choice "2" { 
+        value= "-2"
+        desc = "2 normal pages per sheet"
+        help = ""
+     }
+        choice "4" { 
+        value= "-4"
+        desc = "4 normal pages per sheet"
+        help = ""
+     }
+  }
+
+   
+  language_driver ps {
+    filetype_regx = "postscript"
+    convert_exec {
+          case "$PPS" in
+            -2)
+                mpage -2 -b$PAPER_SIZE $INPUT > $INPUT-2
+                        mv -f $INPUT-2 $INPUT
+            ;;
+            -4)
+                mpage -4 -b$PAPER_SIZE $INPUT > $INPUT-2
+                        mv -f $INPUT-2 $INPUT
+            ;;
+          esac
+
+      gs -sDEVICE=ljet4 \
+         -q -dBATCH -dSAFER -dNOPAUSE -sPAPERSIZE=$PAPER_SIZE \
+         -r$RES -sOutputFile=$OUTPUT $INPUT
+             
+          case "$DUPLEX" in
+            FLE)
+              (echo "1B451B266C3153" ; xxd -p -c 7 -s 2 $OUTPUT) | xxd -r -p -c 7 > TMPFILE
+              mv -f TMPFILE $OUTPUT
+            ;;
+            FSE)
+              (echo "1B451B266C3253" ; xxd -p -c 7 -s 2 $OUTPUT) | xxd -r -p -c 7 > TMPFILE
+              mv -f TMPFILE $OUTPUT
+            ;;
+            esac
+    }
+  }
+
+  language_driver text {
+    convert_exec {
+                sed -e 's/$/'`echo -ne '\r'`'/g' < $INPUT > $OUTPUT
+    }
+  }
+}

@@ -1,0 +1,3 @@
+The name of this file is README~. Pdq SKIPS IT because of the trailing ~.  
+This prevents pdq from including saved editor buffers, and lets me put in 
+a README file!  Cool, huh?

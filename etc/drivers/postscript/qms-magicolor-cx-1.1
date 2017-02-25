@@ -1,0 +1,86 @@
+driver QMS-magicolor-cx { 
+
+   help "QMS Magicolor CX PostScript Driver"
+
+   option { 
+      var = "PAPER_TRAY"
+      desc = "Paper tray options"
+      choice "tray_default" { 
+         desc = "Use printer default"
+         help = "Print from the default paper tray for your printer"  
+      }
+      choice "tray1" { 
+	 value = "force_tray1"
+         desc = "Tray 1"
+         help = "Print on paper from tray 1"
+      }
+      choice "tray2" { 
+	 value = "force_tray2"
+         desc = "Tray 2"
+         help = "Print on paper from tray 2"
+      }
+      choice "tray3" { 
+	 value = "force_tray3"
+         desc = "Tray 3"
+         help = "Print on paper from tray 3"
+      }
+      choice "tray4" { 
+	 value = "force_tray4"
+         desc = "Tray 4"
+         help = "Print on paper from tray 4"
+      }
+   }
+
+   option { 
+      var = "MEDIA_TYPE"
+      desc = "Media type"
+      choice "plain" { 
+         value = "(Plain Paper)"
+         desc = "Plain Paper"
+      }
+      choice "transparency" { 
+         value = "(Transparency)"
+         desc = "Transparency"
+      }
+   }
+
+   language_driver ps { 
+      filetype_regx = "postscript"
+   }
+
+   language_driver jpeg {
+      convert_exec { djpeg $INPUT | pnmtops > $OUTPUT}
+   }
+
+   language_driver image {
+      convert_exec { anytopnm $INPUT | pnmtops > $OUTPUT}
+   }
+
+   filter_exec {
+
+      echo "%!PS" > $OUTPUT;
+      echo "statusdict begin" >> $OUTPUT;
+
+      if [ "$PAPER_TRAY" = "force_tray1" ]; then
+ 	 echo "   statusdict /setpapertray known " >> $OUTPUT;
+         echo "   {1 setpapertray} if" >> $OUTPUT;
+      elif [ "$PAPER_TRAY" = "force_tray2" ]; then	
+ 	 echo "   statusdict /setpapertray known " >> $OUTPUT;
+         echo "   {2 setpapertray} if" >> $OUTPUT;
+      elif [ "$PAPER_TRAY" = "force_tray3" ]; then	
+ 	 echo "   statusdict /setpapertray known " >> $OUTPUT;
+         echo "   {3 setpapertray} if" >> $OUTPUT;
+      elif [ "$PAPER_TRAY" = "force_tray4" ]; then	
+ 	 echo "   statusdict /setpapertray known " >> $OUTPUT;
+         echo "   {4 setpapertray} if" >> $OUTPUT;
+      fi
+
+      echo "<</MediaType $MEDIA_TYPE>> setpagedevice" >> $OUTPUT
+
+      echo "end" >> $OUTPUT
+
+      cat $INPUT >> $OUTPUT
+   }
+
+}
+

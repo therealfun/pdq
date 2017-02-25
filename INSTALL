@@ -1,0 +1,19 @@
+Hopefully as simple as
+
+   # ./configure
+   # make
+   # make install
+
+If you don't already have a config file, do
+
+   # mv /etc/pdq/printrc.example  /etc/pdq/printrc
+
+
+
+Note that configure takes two arguments for adjusting resource location:
+
+  --enable-pdqlibdir=DIR  place to install drivers and interfaces;
+                          does not affect behavior of executables
+
+  --enable-printrc=FILE   optional substitution for /etc/pdq/printrc 
+

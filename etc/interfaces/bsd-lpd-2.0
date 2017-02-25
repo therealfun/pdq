@@ -1,0 +1,67 @@
+interface bsd-lpd {
+
+   help "This is probably the most common network interface.  Use this 
+         interface if the printer is attached locally to a Unix machine, 
+	 or if the printer has its own ethernet connection with an IP 
+	 interface (such as JetDirect)."
+
+   required_args "REMOTE_HOST"
+
+   argument { 
+      var = "REMOTE_HOST"
+      desc = "Remote lpd host"
+      help = "This is IP name or number of the machine running the lpd 
+              server.  The printer itself may have the IP number."
+   }
+
+   argument { 
+      var = "QUEUE"
+      def_value = "lp"
+      desc = "Remote lpd queue"
+      help = "This is the queue name on the lpd server.  For networked 
+              printers (JetDirect, etc.), use \"raw\"." 
+   }
+
+   option {
+      var = "CANCEL_MODEL"
+      desc = "Cancel model";
+      choice normal_cancel {
+         value = ""
+	 desc = "normal"
+	 help = "Finishes sending the entire print job, then
+	         requests a cancel.  For the most part, the
+		 job will still print"
+      }
+      choice nasty_cancel {
+         value = "-n"
+	 desc = "nasty"
+	 help = "Abruptly closes the network connection.  This
+	         is a reliable way to cancel, but may confuse
+		 the lpd host or the printer."
+      }
+   }
+
+   requires "lpd_print, lpd_status, lpd_cancel"  # These should have
+                                                 # been supplied in
+						 # the pdq distribution.
+
+   send_exec {
+
+        trap '' SIGTERM;  # Ignore SIGTERM and wait for 
+	                  # lpd_send to finish, so we can still
+			  # see good status messages
+	                   
+   	lpd_print -vv \
+		$CANCEL_MODEL \
+		-j $JOB_ID \
+		-f $INPUT \
+		$REMOTE_HOST $QUEUE > $STATUS 
+   }
+
+   status_exec { lpd_status $REMOTE_HOST $QUEUE }
+
+   # For late cancels.  Probably won't work anyways! 
+   cancel_exec { lpd_cancel -j $JOB_ID $REMOTE_HOST $QUEUE }
+ 
+}
+

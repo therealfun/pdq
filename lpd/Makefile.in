@@ -1,0 +1,78 @@
+
+# Copyright 1999 Jacob A. Langford
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2, as 
+# published by the Free Software Foundation.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+SHELL = /bin/sh
+top_srcdir = @top_srcdir@
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+.SUFFIXES: .c .o
+
+OPT= -O
+
+AR = ar
+AR_FLAGS = rc
+RANLIB = @RANLIB@
+
+CC = @CC@
+CFLAGS = -I. @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+INSTALL = @INSTALL@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+libdir = $(prefix)/lib
+infodir = $(prefix)/info
+
+SOURCES=lpd_cancel.c lpd_interface.c lpd_print.c lpd_status.c
+DOCS=
+MISC=
+OBJS=lpd_cancel.o lpd_interface.o lpd_print.o lpd_status.o
+LIB_OBJS=
+
+all: lpd_cancel lpd_print lpd_status
+
+install: all
+	$(top_srcdir)/mkinstalldirs $(bindir)
+	$(INSTALL) -o root -m 4755 lpd_cancel $(bindir)/lpd_cancel
+	$(INSTALL) -o root -m 4755 lpd_print $(bindir)/lpd_print
+	$(INSTALL) -o root -m 4755 lpd_status $(bindir)/lpd_status
+
+uninstall:
+	/bin/rm -f $(bindir)/lpd_print
+	/bin/rm -f $(bindir)/lpd_cancel
+	/bin/rm -f $(bindir)/lpd_status
+
+lpd_print: $(OBJS) 
+	$(CC) $(CFLAGS) -o lpd_print lpd_print.o lpd_interface.o $(LIBS)
+
+lpd_cancel: $(OBJS) 
+	$(CC) $(CFLAGS) -o lpd_cancel lpd_cancel.o lpd_interface.o $(LIBS)
+
+lpd_status: $(OBJS) 
+	$(CC) $(CFLAGS) -o lpd_status lpd_status.o lpd_interface.o $(LIBS)
+
+clean:
+	/bin/rm -f core *.o $(OBJS) $(LIB_OBJS)
+
+distclean: clean
+	/bin/rm -f Makefile config.h config.status config.cache config.log 
+
+mostlyclean: clean
+
+maintainer-clean: clean
+

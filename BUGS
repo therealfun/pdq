@@ -1,0 +1,271 @@
+************************************************************************
+************************************************************************
+***
+***   OPEN
+***
+************************************************************************
+************************************************************************
+
+-------------------------------------------------------------------------
+Sun Jan 16 20:50:07 CST 2000
+a small note (also bug) when I changed
+printrc and make & copied files to /etc/pdq/interfaces/ & /etc/pdq/drivers/
+I got segfaults -> I had to do rm ~/.printjobs/*
+don't know why but it worked (no more segfaults) !!
+
+
+-------------------------------------------------------------------------
+Sun Jan 16 20:47:41 CST 2000
+Reported trouble with Communicator 4.7.
+
+-------------------------------------------------------------------------
+Sun Jan 16 20:48:05 CST 2000
+Mathematica cannot print with pdq.  pdq forks and exits before it reads
+STDIN, and Mathematica gets confused about this.  Need to read STDIN
+before exiting.
+
+-------------------------------------------------------------------------
+Sun Jan 16 19:46:01 CST 2000
+Need to add escape_block shortly before rc_set in xpdq_printer.c, so that
+the "set to default printer" gives default_printer "my printer" which might
+have spaces, instead of default_printer my printer which chokes.
+
+-------------------------------------------------------------------------
+Sun Jan 16 19:46:01 CST 2000
+The SGI problems still persist.  I often get filetype empty, which I
+presume is a plumbing problem on the filetype exec.
+
+-------------------------------------------------------------------------
+Mon May  3 09:04:58 CDT 1999
+When a job is cancelled while sending, the status ends up showing aborted.
+This appears to be because the interface send script fails abnormally.  Of
+course it does, it was killed...
+
+-------------------------------------------------------------------------
+langford@elmo 54% ./pdq pqd.c
+Couldn't open pqd.c for reading, No such file or directory
+
+WARNING: 1 of 1 files will not be printed.
+langford@elmo 55% ./pdq pqd.c
+Couldn't open pqd.c for reading, No such file or directory
+
+WARNING: 1 of 1 files will not be printed.
+langford@elmo 56% ls pdq.c
+pdq.c
+langford@elmo 57% ls -l pdq.c
+-rw-r--r--   1 langford users        1923 Mar 29 22:23 pdq.c
+langford@elmo 58% ./pdq pqd.c
+Couldn't open pqd.c for reading, No such file or directory
+
+WARNING: 1 of 1 files will not be printed.
+langford@elmo 59% vim pdq.c
+langford@elmo 60% ./pdq pdq.c
+langford@elmo 61% ls -l core
+ls: core: No such file or directory
+
+Tue Apr 13 07:34:58 CDT 1999
+I had this again, and couldn't get the problem to go away until I printed
+a file different from pdq.c.  I tried editing, touching, fuser, everything,
+and found no indication of why pdq.c was not found.  It was absolutely
+repeatable until I 
+
+-------------------------------------------------------------------------
+Wed Apr  7 12:59:34 CDT 1999
+Sometimes a job update is not caught by xpdq.  Send an empty file and 
+it sometimes sticks on "converting".
+
+Tue Apr 13 07:35:59 CDT 1999
+I'm not if this is real.  I found another case where the job really did
+get stuck converting, on karman.  I suppose that this was due to the
+behavior of signals on the SGI.  I know I had not been resetting the signal
+after I trapped it.  So one signal got caught on filetype_exec, then
+the exit of convert_exec would not get trapped. 
+
+Sun Apr 18 09:26:32 CDT 1999
+Got this again... then I went to click on details and xpdq crashed.
+Restarted xpdq and it showed the job had aborted.  It aborted because
+the send_exec failed on a write permission to /dev/ttyS1, and then on
+try two it couldn't open the status pipe (already exists) so it aborted.
+
+************************************************************************
+************************************************************************
+***
+***   RESOLVED
+***
+************************************************************************
+************************************************************************
+
+Mon Mar 22 14:00:24 CST 1999
+On SGI, crashes with bus error when a bogus keyword is included
+in the interface definition, or the driver definition.
+I checked into this, and the problem is when the printer list is freed.
+It appears that the printer list gets modified in say the driver routine,
+when the driver gets added.  This appears to occur in the str_set portion
+of new_driver.  Wierd, man, just like all c bugs.
+
+FIXED - Mon Mar 29 11:00:08 CST 1999
+Added function str_reset to complement str_set.  It is likely that I was
+free-ing stuff I hadn't malloced.  This is because str_set had been looking
+for nonzero pointers, and freeing them.  Now str_set skips the check, while
+str_reset checks.  So str_set should only be used for times when you are 
+sure you are *initializing* a string, like in a new function.  Seems okay
+now.
+
+-------------------------------------------------------------------------
+Sun Mar 28 14:18:58 CST 1999
+Xpdq leaks like a sieve!  I suspect this is from the parse routines and
+such.
+
+FIXED -  Sun Mar 28 18:33:29 CST 1999
+When I call initialize_parse_state, I didn't mark the malloced flag, so
+that the free routine never freed up what it had malloced.  This would
+indeed leak fast!  Seems okay now.
+
+-------------------------------------------------------------------------
+Tue Mar 30 11:07:25 CST 1999
+During parsing, {|blah blah} is silently equivalent to {}.
+
+FIXED
+modified the parse routines to check whether scan_block ended from an
+EOF or a nonblock character.
+-------------------------------------------------------------------------
+Wed Mar 31 10:10:08 CST 1999
+When running verify_exec, I wait on output.  Similarly with file command.
+I will wait forever if the process never writes!
+
+FIXED - Tue Apr  6 19:18:51 CDT 1999
+Wrote reaper utilities, trapped SIGCHLD, used select.  Also took the
+opportunity to add in support for dynamic updates of status from the
+scripts.
+-------------------------------------------------------------------------
+Wed Mar 31 10:25:17 CST 1999
+Borodai claims he printed to squid, who was out of paper, and pdq exited
+leaving the status set to "sending (try 1)". No core files were found.
+
+FIXED Borodai concedes that he typed "killall pdq" to remove a job sent to
+pokey, and that he had already sent the job to squid.
+-------------------------------------------------------------------------
+Wed Mar 31 13:59:57 CST 1999
+xpdq status colors never reset to white.
+
+FIXED - Tue Apr  6 19:35:25 CDT 1999
+-------------------------------------------------------------------------
+Wed Mar 31 14:00:13 CST 1999
+If xpdq catches the job status during the analyze phase, the filetype field
+does not get set.
+
+FIXED - Tue Apr  6 19:35:25 CDT 1999
+-------------------------------------------------------------------------
+Mon Apr  5 10:44:38 CDT 1999
+When a -ooption is given, pdq dumps core.
+
+FIXED - Tue Apr  6 19:12:20 CDT 1999
+passed in argv option lists, not argv arg lists to env_by_arg.
+
+-------------------------------------------------------------------------
+Mon Mar 29 09:26:36 CST 1999
+     
+When the wizard writes updates to the rc file, it does not create a
+~.printrc for the user, as necessary.  This would also occur for the super
+user writing /etc/printrc, (although the wizard wouldn't have made it very
+far without an /etc/printrc).
+
+Tue Apr  6 19:26:33 CDT 1999
+Modified append_to_rc file to add O_CREAT mode 0644 to the open statement.
+NEEDS CHECKED!
+Sat Apr 10 12:46:02 CDT 1999
+CHECKED OKAY
+
+-------------------------------------------------------------------------
+Fri Apr  9 15:29:47 CDT 1999
+Delete printer totally hoses the rc_file.
+
+Sat Apr 10 12:46:24 CDT 1999
+FIXED - had never updated the way the printer list is handled
+
+-------------------------------------------------------------------------
+Fri Apr  9 15:29:47 CDT 1999
+Something seems to be wrong with incompatibility_msg
+
+Sat Apr 10 12:46:53 CDT 1999
+FIXED - Yeah, I forgot to set it!
+
+-------------------------------------------------------------------------
+Wed Apr  7 12:59:34 CDT 1999
+When a single nonexistent file is printed, shepherd goes anyways.
+
+Sat Apr 10 12:51:17 CDT 1999
+FIXED - If nobody forked, the variable pid never got set to something.
+The nonzero nature of pid was used to determine whether the thread was
+main and should exit.  Fixed by setting pid=1 before the fork loop.
+
+-------------------------------------------------------------------------
+Mon Apr 12 23:15:01 CDT 1999
+Edit options...
+change a toggle button
+push driver options button twice
+resets this...
+
+FIXED - Tue Apr 13 07:34:18 CDT 1999
+Had to change radio button signal from clicked to toggled.
+
+-------------------------------------------------------------------------
+Thu Apr 15 12:23:21 CDT 1999
+
+in lpd stuff, I use seteuid() which is not portable (and isn't on HPUX).
+I should use setuid().  Also, I should modify the code to not abort if
+root privelege does not exist.  Sometimes it isn't needed, like for
+JetDirect interfaces.
+
+Sun Apr 18 09:24:54 CDT 1999
+All fixed - didn't use setuid() either, it's a one-way street out of
+rootland.  Left root privelege throughout... oh well, it *is* an 
+extremely short code.  Added parts to bind to nonpriv. port if root
+access isn't available.
+
+-------------------------------------------------------------------------
+Sun Apr 18 09:26:13 CDT 1999
+
+I create the status pipe each time send_exec runs.  This should only
+be done the first time, or else pdq aborts.
+
+FIXED - Sun Apr 18 22:11:30 CDT 1999
+
+-------------------------------------------------------------------------
+Tue Apr 13 09:55:23 CDT 1999
+
+Interface: bsd_lpd
+Language driver: 
+Filetype_exec environment: 
+Driver environment: "JOB_ID"  ...
+
+Some fields seem to be missing!
+
+Sun Apr 18 09:25:52 CDT 1999
+Now language driver exists, but no environment fields
+
+FIXED - Sun Apr 18 22:11:52 CDT 1999
+
+-------------------------------------------------------------------------
+Fri Apr 23 11:27:47 CDT 1999
+If I do " echo hello | pdq " the filetype_exec exits abnormally.
+
+FIXED - Thu Apr 29 09:55:44 CDT 1999
+The filename was not getting set soon enough.
+
+-------------------------------------------------------------------------
+Thu Apr 29 09:56:40 CDT 1999
+If xpdq is used to print a file, then the job status continues to update
+after the job has finished.  Check the last-update time of the job
+structure.
+
+FIXED - Fri Apr 30 13:08:51 CDT 1999
+Right... last-time part of job structure was not set correctly.
+
+-------------------------------------------------------------------------
+Wed Apr 21 13:52:49 CDT 1999
+If xpdq show job details window is open, then job status changes, then
+a new job is clicked, core dumps.
+
+DROPPED - Mon May  3 09:04:41 CDT 1999
+This doesn't seem to happen anymore

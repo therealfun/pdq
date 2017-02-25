@@ -1,0 +1,40 @@
+.TH LPD_CANCEL 1 "APRIL 1999" Linux "pdq printing manuals"
+.SH NAME
+lpd_cancel \- remove an entry from a remote lpd print spooler
+.SH SYNOPSIS
+.BI "lpd_cancel [-v] -j " id_num " " queue @ host " | " host " [" queue ]
+.SH DESCRIPTION
+.B lpd_cancel 
+removes an entry from the BSD line printer daemon at 
+.IR host .
+The job is removed to  
+.IR queue ,
+or 
+.I lp
+if not specified.  The job id to cancel is
+.IR id_num ,
+or 1 if not specified.  
+
+To be compliant with RFC-1179, this program must run SUID root, so that
+a privileged outbound port may be used.  However, many lpd servers found on
+networked printers do not enforce this requirement.
+.SH OPTIONS
+.IP "-j \fIjob_id"
+Set the job id to be
+.IR job_id .
+This should be a three digit number from 001 to 999.  Default is 001.
+.IP -v
+Print warnings and fatal errors.
+.IP -vv
+Print warnings, fatal errors, and informative messages.
+.IP -vvv
+Print everything (debug level).
+.SH BUGS
+When one does not have permission to cancel the requested job, no error
+message is displayed.  Actually 
+.B lpd_cancel
+does not work at all; don't print jobs you intend to cancel.
+.SH AUTHOR
+Jacob A. Langford <langford@uiuc.edu>
+.SH SEE ALSO
+lpd_print(1), lpd_status(1), RFC-1179

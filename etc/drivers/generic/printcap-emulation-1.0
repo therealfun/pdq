@@ -1,0 +1,50 @@
+
+driver printcap-emulation {
+  
+   help "The printcap-emulation driver is supplied for compatibility with
+         print filters already developed for BSD-style printing.  This
+	 driver should only be used if you are in love with the functionality
+	 of an existing print filter (there are many good ones)."
+
+   required_args "IF"
+
+   argument { 
+      var = "IF"
+      desc = "if"
+      help = "This filter has the behavior of the recent versions 
+              of lpd, which means that the filter will be run even if the 
+	      printer is a remote printer." 
+   }
+
+   argument { 
+      var = "AF"
+      desc = "af"
+      help = "Accounting file"
+      def_value = "NA" 
+   }
+   argument { 
+      var = "HOST"
+      desc = "host"
+      help = "Gets passed as -h option of the filter.  This does not affect 
+              the remote host, which is set as an interface argument"
+      def_value = "NA" 
+   }
+   argument { 
+      var = "PX"
+      desc="px"
+      help = "page width in pixels" 
+      def_value = "NA" 
+   }
+   argument { 
+      var = "PY"
+      desc="py"
+      help = "page height in pixels" 
+      def_value = "NA" 
+   }
+
+   language_driver catch_all { filetype_regx = "*" } 
+
+   filter_exec { $IF -x$PX -y$PY -n $LOGNAME -h $HOST $AF <$INPUT >$OUTPUT }
+
+}
+

@@ -1,0 +1,553 @@
+This is the input file for a ghostscript -> pdq driver generation script.
+Self documenting, I hope.  This information was taken out of gs6.0, Devices.htm
+I didn't and can't possibly test all this stuff.  Send adjustments to langford@uiuc.edu
+
+------------------------------------------------------------------------------------------------------------
+driver : stcolor : gs-stcolor-0.1
+
+help : For the Epson Stylus series inkjet printers.\nAlso see uniprint.
+
+resolutions : 360x360 : 720x720 : 360x720 : 720 x 360 : 180x180
+
+option : weaving : microweave
+choice : -dMicroweave : -omicroweave : enabled : Enable the printer's (internal) microweave feature.
+choice : -dnoWeave : -onoweave : disabled : Disable any weaving.
+
+option : dithering algorithm : fscmyk
+choice : -sDithering=fscmyk : -ofscmyk : Floyd-Steinberg, CMYK color model
+choice : -sDithering=hscmyk : -ohscmyk : modified Floyd-Steinberg, CMYK color model
+choice : -sDithering=fsrgb : -ofsrgb : Floyd-Steinberg, RGB color model
+choice : -sDithering=fs2 : -ofs2 : algorithm by Steve Singer, RGB color model 
+choice : -sDithering=gsrgb : -ogsrgb : fast color output, RGB color model
+choice : -sDithering=gscmyk : -ogscmyk : fast color output, CMYK color model
+choice : -sDithering=fsmono : -ofsmono : Floyd-Steinberg, monochrome
+choice : -sDithering=gsmono : -ogsmono : fast monocrome output
+
+option : bidirectional printing : bidirectional
+choice :  : -obidirectional : enabled : Head prints when traveling in either direction
+choice : -dUnidirectional : -ounidirectional : disabled : Head prints only when traveling in one direction
+
+option : use stcolor.ps : nostcolor.ps
+choice : stcolor.ps : -ostcolor.ps : yes : Add the driver library file stcolor.ps to the print job
+choice : stcolor.ps : -onostcolor.ps : no : Do not add the driver library file stcolor.ps to the print job
+
+argument : -dBitsPerPixel : -abpp : 30 : bits per pixel : Bits per pixel (1 - 32), higher for more quality
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+
+------------------------------------------------------------------------------------------------------------
+driver : uniprint : gs-uniprint-simple-0.1
+
+help : This driver gives you the ability to\ntoggle between many preselected configurations
+help : \nfor the following printers:\n\n\tCanon BJC 610\n\tHP Deskjet 550c\n\tNEC Prinwriter 2X
+help : \n\tAny Epson Stylus Color
+
+option : printer selection
+choice : @bjc610a0.upp : NAMELESS : Canon BJC 610, 360x360DpI, plain paper high speed, color, rendered
+choice : @bjc610a1.upp : NAMELESS : Canon BJC 610, 360x360DpI, plain paper, color, rendered
+choice : @bjc610a2.upp : NAMELESS : Canon BJC 610, 360x360DpI, coated paper, color, rendered
+choice : @bjc610a3.upp : NAMELESS : Canon BJC 610, 360x360DpI, transparency film, color, rendered
+choice : @bjc610a4.upp : NAMELESS : Canon BJC 610, 360x360DpI, back print film, color, rendered
+choice : @bjc610a5.upp : NAMELESS : Canon BJC 610, 360x360DpI, fabric sheet, color, rendered
+choice : @bjc610a6.upp : NAMELESS : Canon BJC 610, 360x360DpI, glossy paper, color, rendered
+choice : @bjc610a7.upp : NAMELESS : Canon BJC 610, 360x360DpI, high gloss film, color, rendered
+choice : @bjc610a8.upp : NAMELESS : Canon BJC 610, 360x360DpI, high resolution paper, color, rendered
+choice : @bjc610b1.upp : NAMELESS : Canon BJC 610, 720x720DpI, plain paper, color, rendered
+choice : @bjc610b2.upp : NAMELESS : Canon BJC 610, 720x720DpI, coated paper, color, rendered
+choice : @bjc610b3.upp : NAMELESS : Canon BJC 610, 720x720DpI, transparency film, color, rendered
+choice : @bjc610b4.upp : NAMELESS : Canon BJC 610, 720x720DpI, back print film, color, rendered
+choice : @bjc610b6.upp : NAMELESS : Canon BJC 610, 720x720DpI, glossy paper, color, rendered
+choice : @bjc610b7.upp : NAMELESS : Canon BJC 610, 720x720DpI, high gloss paper, color, rendered
+choice : @bjc610b8.upp : NAMELESS : Canon BJC 610, 720x720DpI, high resolution paper, color, rendered
+choice : @cdj550.upp : NAMELESS : HP Deskjet 550c, 300x300DpI, Gamma=2
+choice : @necp2x.upp : NAMELESS : NEC Prinwriter 2X, 360x360DpI, Plain Paper
+choice : @necp2x6.upp : NAMELESS : NEC Prinwriter 2X, 360x360DpI, Plain Paper
+choice : @ras1.upp : NAMELESS : SUN rasterfile, 1 Bit, 2 Colors (Ghostscript-Rendering)
+choice : @ras24.upp : NAMELESS : SUN rasterfile, 24 Bit, 7 Colors (RGB-Error-Diffusion)
+choice : @ras3.upp : NAMELESS : SUN rasterfile, 3 Bit, 7 Colors (RGB-Ghostscript)
+choice : @ras32.upp : NAMELESS : SUN rasterfile, 32 Bit, 6+1 Colors (CMYK-Error-Diffusion)
+choice : @ras4.upp : NAMELESS : SUN rasterfile, 4 Bit, 6+1 Colors (CMYK-Ghostscript)
+choice : @ras8m.upp : NAMELESS : SUN rasterfile, 8 Bit, 2 Colors (Error-Diffusion)
+choice : @stc.upp : NAMELESS : Epson Stylus Color I (and PRO Series), 360x360DpI, Plain Paper
+choice : @stc1520h.upp : NAMELESS : Epson Stylus Color 1520, 1440x720DpI, Inkjet Paper
+choice : @stc2.upp : NAMELESS : Epson Stylus Color II / IIs, 360x360DpI, Plain Paper
+choice : @stc2_h.upp : NAMELESS : Epson Stylus Color II, 720x720DpI, Special Paper
+choice : @stc2s_h.upp : NAMELESS : Epson Stylus Color IIs, 720x720DpI, Special Paper
+choice : @stc500p.upp : NAMELESS : Epson Stylus Color 500, 360x360DpI, not Weaved, Plain Paper
+choice : @stc500ph.upp : NAMELESS : Epson Stylus Color 500, 720x720DpI, not Weaved, Plain Paper
+choice : @stc600ih.upp : NAMELESS : Epson Stylus Color 600, 1440x720DpI, Inkjet Paper
+choice : @stc600p.upp : NAMELESS : Epson Stylus Color 600, 720x720DpI, Plain Paper
+choice : @stc600pl.upp : NAMELESS : Epson Stylus Color 600, 360x360DpI, Plain Paper
+choice : @stc800ih.upp : NAMELESS : Epson Stylus Color 800, 1440x720DpI, Inkjet Paper
+choice : @stc800p.upp : NAMELESS : Epson Stylus Color 800, 720x720DpI, Plain Paper
+choice : @stc800pl.upp : NAMELESS : Epson Stylus Color 800, 360x360DpI, Plain Paper
+choice : @stc_h.upp : NAMELESS : Epson Stylus Color I (and PRO Series), 720x720DpI, Special Paper
+choice : @stc_l.upp : NAMELESS : Epson Stylus Color I (and PRO Series), 360x360DpI, noWeave
+choice : @stcany.upp : NAMELESS : Any Epson Stylus Color, 360x360DpI
+
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver : cdj670 : gs-cdj670-0.1
+help : This driver supports HP DeskJet 670 and 690 printers
+
+option : quality : normal
+choice : -dQuality=-1 : -odraft : draft : Print quality is draft
+choice : -dQuality=0 : -onormal : normal : Print quality is normal
+choice : -dQuality=1 : -opresentation : presentation : Print quality is best
+
+option : paper type : plainpaper
+choice : -dPapertype=0 : -oplainpaper : plain : Adjusts printer for plain paper
+choice : -dPapertype=1 : -obondpaper : bond : Adjusts printer for bond paper
+choice : -dPapertype=2 : -ospecialpaper : special : Adjusts printer for special paper
+choice : -dPapertype=3 : -oglossyfilm : glossy film : Adjusts printer for glossy film
+choice : -dPapertype=4 : -otransparency : transparency : Adjusts printer for transparencies
+
+option : return status : return
+choice : -dRetStatus=1 : -oreturn : on : C-RET on
+choice : -dRetStatus=0 : -onoreturn : off : C-RET off
+
+argument : -sBitsPerPixel : -abpp : 32 : bits per pixel : Bits per pixel (1 - 32), higher for more quality
+argument : -dMasterGamma : -agamma : 1.0 : gamma correction : Sets the master gamma correction (1.0 - 10.0)
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver : cdj850 : gs-cdj850-0.1
+help : This driver supports HP DeskJet 850, 855, 870, and 1100 printers
+
+option : quality : normal
+choice : -dQuality=-1 : -odraft : draft : Print quality is draft
+choice : -dQuality=0 : -onormal : normal : Print quality is normal
+choice : -dQuality=1 : -opresentation : presentation : Print quality is best
+
+option : paper type : plainpaper
+choice : -dPapertype=0 : -oplainpaper : plain : Adjusts printer for plain paper
+choice : -dPapertype=1 : -obondpaper : bond : Adjusts printer for bond paper
+choice : -dPapertype=2 : -ospecialpaper : special : Adjusts printer for special paper
+choice : -dPapertype=3 : -oglossyfilm : glossy film : Adjusts printer for glossy film
+choice : -dPapertype=4 : -otransparency : transparency : Adjusts printer for transparencies
+
+option : return status : return
+choice : -dRetStatus=1 : -oreturn : on : C-RET on
+choice : -dRetStatus=0 : -onoreturn : off : C-RET off
+
+argument : -sBitsPerPixel : -abpp : 32 : bits per pixel : Bits per pixel (1 - 32), higher for more quality
+argument : -dMasterGamma : -agamma : 1.0 : gamma correction : Sets the master gamma correction (1.0 - 10.0)
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver : cdj890 : gs-cdj890-0.1
+help : This driver supports the HP DeskJet 890 printer
+
+option : quality : normal
+choice : -dQuality=-1 : -odraft : draft : Print quality is draft
+choice : -dQuality=0 : -onormal : normal : Print quality is normal
+choice : -dQuality=1 : -opresentation : presentation : Print quality is best
+
+option : paper type : plainpaper
+choice : -dPapertype=0 : -oplainpaper : plain : Adjusts printer for plain paper
+choice : -dPapertype=1 : -obondpaper : bond : Adjusts printer for bond paper
+choice : -dPapertype=2 : -ospecialpaper : special : Adjusts printer for special paper
+choice : -dPapertype=3 : -oglossyfilm : glossy film : Adjusts printer for glossy film
+choice : -dPapertype=4 : -otransparency : transparency : Adjusts printer for transparencies
+
+option : return status : return
+choice : -dRetStatus=1 : -oreturn : on : C-RET on
+choice : -dRetStatus=0 : -onoreturn : off : C-RET off
+
+argument : -sBitsPerPixel : -abpp : 32 : bits per pixel : Bits per pixel (1 - 32), higher for more quality
+argument : -dMasterGamma : -agamma : 1.0 : gamma correction : Sets the master gamma correction (1.0 - 10.0)
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver : cdj1600 : gs-cdj1600-0.1
+help : This driver supports the HP DeskJet 1600 printer
+
+option : quality : normal
+choice : -dQuality=-1 : -odraft : draft : Print quality is draft
+choice : -dQuality=0 : -onormal : normal : Print quality is normal
+choice : -dQuality=1 : -opresentation : presentation : Print quality is best
+
+option : paper type : plainpaper
+choice : -dPapertype=0 : -oplainpaper : plain : Adjusts printer for plain paper
+choice : -dPapertype=1 : -obondpaper : bond : Adjusts printer for bond paper
+choice : -dPapertype=2 : -ospecialpaper : special : Adjusts printer for special paper
+choice : -dPapertype=3 : -oglossyfilm : glossy film : Adjusts printer for glossy film
+choice : -dPapertype=4 : -otransparency : transparency : Adjusts printer for transparencies
+
+option : return status : return
+choice : -dRetStatus=1 : -oreturn : on : C-RET on
+choice : -dRetStatus=0 : -onoreturn : off : C-RET off
+
+argument : -sBitsPerPixel : -abpp : 32 : bits per pixel : Bits per pixel (1 - 32), higher for more quality
+argument : -dMasterGamma : -agamma : 1.0 : gamma correction : Sets the master gamma correction (1.0 - 10.0)
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver : bjc600 : gs-bjc600-0.1
+help : Supports the BJC-600 and BJC-4xxx (maybe the BJC-70 as well) 
+
+option : print quality : normal
+choice : -sPrintQuality=Draft : -odraft : draft : Unlights the HQ light
+choice : -sPrintQuality=Normal : -onormal : normal : Lights the HQ light
+choice : -sPrintQuality=High : -ohigh : high : Means 200% black and 100% CMY; lights the Bk+ light
+
+resolutions: 360x360 : 180x180 : 90x90
+
+option : print mode : fscmyk24
+choice : -sDitheringType=Floyd-Steinberg -dColors=4 -dBitsPerPixel=32 : -ofscmyk32  : 32 bit, CMYK, Floyd-Steinberg 
+choice : -sDitheringType=Floyd-Steinberg -dColors=4 -dBitsPerPixel=24 : -ofscmyk24  : 24 bit, CMYK, Floyd-Steinberg
+choice : -sDitheringType=Floyd-Steinberg -dColors=4 -dBitsPerPixel=16 : -ofscmyk16  : 16 bit, CMYK, Floyd-Steinberg
+choice : -sDitheringType=None -dColors=4 -dBitsPerPixel=16            : -ocmyk16    : 16 bit, CMYK, no dithering
+choice : -sDitheringType=None -dColors=4 -dBitsPerPixel=8             : -ocmyk8     : 8 bit, CMYK, no dithering
+choice : -sDitheringType=None -dColors=3 -dBitsPerPixel=8             : -orgb8      : 8 bit, RGB, no dithering
+choice : -sDitheringType=Floyd-Steinberg -dColors=1 -dBitsPerPixel=8  : -omono8     : 8 bit, B/W, Floyd-Steinberg
+choice : -sDitheringType=None-Steinberg -dColors=1 -dBitsPerPixel=1   : -omono1     : 1 bit, B/W, no dithering
+
+option : paper type : plainpaper
+choice : -sPaperType=PlainPaper : -oplainpaper : plain paper 
+choice : -sPaperType=CoatedPaper : -ocoatedpaper : coated paper 
+choice : -sPaperType=TransparencyFilm : -otransparency : transparency 
+choice : -sPaperType=Envelope : -oenvelope : envelope 
+choice : -sPaperType=Card : -ocard : card 
+choice : -sPaperType=Other : -oother : other 
+
+option : manual feed : nomanual
+choice : -dManualFeed : -omanual : yes : Feed pages manually
+choice :  : -onomanual : no : Do not feed pages manually
+
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver : bjc800 : gs-bjc800-0.1
+help : Supports the BJC-800 series
+
+option : print quality : normal
+choice : -sPrintQuality=Low : -olow : low : Makes two passes vs. four, twice the speed, known as CN (Color Normal) mode 
+choice : -sPrintQuality=Draft : -odraft : draft : 
+choice : -sPrintQuality=Normal : -onormal : normal :
+choice : -sPrintQuality=High : -ohigh : high : Means 200% black and 100% CMY
+
+resolutions: 360x360 : 180x180 : 90x90
+
+option : print mode : fscmyk24
+choice : -sDitheringType=Floyd-Steinberg -dColors=4 -dBitsPerPixel=32 : -ofscmyk32  : 32 bit, CMYK, Floyd-Steinberg 
+choice : -sDitheringType=Floyd-Steinberg -dColors=4 -dBitsPerPixel=24 : -ofscmyk24  : 24 bit, CMYK, Floyd-Steinberg
+choice : -sDitheringType=Floyd-Steinberg -dColors=4 -dBitsPerPixel=16 : -ofscmyk16  : 16 bit, CMYK, Floyd-Steinberg
+choice : -sDitheringType=None -dColors=4 -dBitsPerPixel=16            : -ocmyk16    : 16 bit, CMYK, no dithering
+choice : -sDitheringType=None -dColors=4 -dBitsPerPixel=8             : -ocmyk8     : 8 bit, CMYK, no dithering
+choice : -sDitheringType=None -dColors=3 -dBitsPerPixel=8             : -orgb8      : 8 bit, RGB, no dithering
+choice : -sDitheringType=Floyd-Steinberg -dColors=1 -dBitsPerPixel=8  : -omono8     : 8 bit, B/W, Floyd-Steinberg
+choice : -sDitheringType=None-Steinberg -dColors=1 -dBitsPerPixel=1   : -omono1     : 1 bit, B/W, no dithering
+
+option : paper type : plainpaper
+choice : -sPaperType=PlainPaper : -oplainpaper : plain paper 
+choice : -sPaperType=CoatedPaper : -ocoatedpaper : coated paper 
+choice : -sPaperType=TransparencyFilm : -otransparency : transparency 
+choice : -sPaperType=Envelope : -oenvelope : envelope 
+choice : -sPaperType=Card : -ocard : card 
+choice : -sPaperType=Other : -oother : other 
+
+option : manual feed : nomanual
+choice : -dManualFeed : -omanual : yes : Feed pages manually
+choice :  : -onomanual : no : Do not feed pages manually
+
+
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver: cdj550 : gs-cdj550-0.1
+help : Designed for HP DeskJet 550C, 560C, 660C, 660Cse\
+\nAlso works on HP-2500.
+
+The resolutions are a wild guess...
+resolutions : 300x300 : 600x600
+
+option : bits per pixel : bpp16
+choice : -dBitsPerPixel=1 : -obpp1 : 1 : A standard Ghostscript monochrome driver, \
+	using black ink (by installing the separate mono cartridge in the case of the DeskJet \
+	500C, or automatically for the other printers). 
+choice : -dBitsPerPixel=3 : -obpp3 : 3 : A standard Ghostscript colour driver, \
+	using internal dithering. This is fast to compute and to print, \
+	but the clustered dithering can lose some detail and colour fidelity. 
+choice : -dBitsPerPixel=8 : -obpp8 : 8 : An \"error-diffusion\" monochrome driver which uses \
+	Floyd-Steinberg dithering to print greyscale images. The patterns \
+	are much more randomised than with the normal clustered dithering, \
+	but the data files can be much larger and somewhat slower to print.
+choice : -dBitsPerPixel=16 : -obpp16 : 16 : A \"cheaper\" version of the 24-bit driver, \
+	which generates Floyd-Steinberg colour dithered output using \
+	the minimum memory (this may be helpful when using Ghostscript \
+	has not been compiled using a 16-bit build environment). The \
+	quality can be almost as good as the 24-bit version.
+choice : -dBitsPerPixel=24 : -obpp24 : 24 : A high-quality colour driver using \
+	Floyd-Steinberg dithering for maximum detail and colour \
+	range. However, it is very memory-intensive, and thus can be slow \
+	to compute. It tends to produce rather larger raw data files, \
+	so they can also take longer to print.
+choice : -dBitsPerPixel=32 : -obpp32 : 32 : Only for the DeskJet 550C, which uses \
+	the black cartridge and the colour cartridge simultaneously \
+	(that is, CMYK printing). This printer can both be faster and \
+	give higher quality than the DeskJet 500C, because of the true \
+	black ink. (Note that the 24-bit mode also permits CMYK printing \
+	on this printer, and uses less memory.	Any differences between \
+	24-bit and 32-bit should be small.)
+
+option : multi-pass printing : shingling2
+choice : -dShingling=0 : -oshingling0 : none (worst)
+choice : -dShingling=1 : -oshingling1 : 50% 
+choice : -dShingling=2 : -oshingling2 : 25% (best)
+
+option : dot removal 
+choice : -dDepletion=0 : -odepletion0 : none : Use for transparencies
+choice : -dDepletion=1 : -odepletion1 : 25% : Best for graphics?
+choice : -dDepletion=2 : -odepletion2 : 50%  
+
+argument : -dBlackCorrect : -ablack : 0 : black correct : Colour correction to give \
+	better blacks when using the DJ500C in colour mode. For example, \
+	the default of 4 reduces the cyan component to 4/5. Range \
+	accepted, 0 - 9 (0 = none).
+
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver: cdj500 : gs-cdj500-0.1
+help : Designed for HP DeskJet 500C and 540C
+
+The resolutions are a wild guess...
+resolutions : 300x300 : 600x600
+
+option : bits per pixel : bpp16
+choice : -dBitsPerPixel=1 : -obpp1 : 1 : A standard Ghostscript monochrome driver, \
+	using black ink (by installing the separate mono cartridge in the case of the DeskJet \
+	500C, or automatically for the other printers). 
+choice : -dBitsPerPixel=3 : -obpp3 : 3 : A standard Ghostscript colour driver, \
+	using internal dithering. This is fast to compute and to print, \
+	but the clustered dithering can lose some detail and colour fidelity. 
+choice : -dBitsPerPixel=8 : -obpp8 : 8 : An \"error-diffusion\" monochrome driver which uses \
+	Floyd-Steinberg dithering to print greyscale images. The patterns \
+	are much more randomised than with the normal clustered dithering, \
+	but the data files can be much larger and somewhat slower to print.
+choice : -dBitsPerPixel=16 : -obpp16 : 16 : A \"cheaper\" version of the 24-bit driver, \
+	which generates Floyd-Steinberg colour dithered output using \
+	the minimum memory (this may be helpful when using Ghostscript \
+	has not been compiled using a 16-bit build environment). The \
+	quality can be almost as good as the 24-bit version.
+choice : -dBitsPerPixel=24 : -obpp24 : 24 : A high-quality colour driver using \
+	Floyd-Steinberg dithering for maximum detail and colour \
+	range. However, it is very memory-intensive, and thus can be slow \
+	to compute. It tends to produce rather larger raw data files, \
+	so they can also take longer to print.
+choice : -dBitsPerPixel=32 : -obpp32 : 32 : Only for the DeskJet 550C, which uses \
+	the black cartridge and the colour cartridge simultaneously \
+	(that is, CMYK printing). This printer can both be faster and \
+	give higher quality than the DeskJet 500C, because of the true \
+	black ink. (Note that the 24-bit mode also permits CMYK printing \
+	on this printer, and uses less memory.	Any differences between \
+	24-bit and 32-bit should be small.)
+
+option : multi-pass printing : shingling2
+choice : -dShingling=0 : -oshingling0 : none (worst)
+choice : -dShingling=1 : -oshingling1 : 50% 
+choice : -dShingling=2 : -oshingling2 : 25% (best)
+
+option : dot removal 
+choice : -dDepletion=0 : -odepletion0 : none : Use for transparencies
+choice : -dDepletion=1 : -odepletion1 : 25% : Best for graphics?
+choice : -dDepletion=2 : -odepletion2 : 50%  
+
+argument : -dBlackCorrect : -ablack : 0 : black correct : Colour correction to give \
+	better blacks when using the DJ500C in colour mode. For example, \
+	the default of 4 reduces the cyan component to 4/5. Range \
+	accepted: 0 - 9 (0 = none).
+
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver: pjxl300 : gs-pjxl300-0.1
+help : Designed for HP PaintJet XL300, DeskJet 1200C, and CopyJet
+
+The resolutions are a wild guess...
+resolutions : 300x300 : 600x600
+
+option : bits per pixel : bpp16
+choice : -dBitsPerPixel=1 : -obpp1 : 1 : A standard Ghostscript monochrome driver, \
+	using black ink (by installing the separate mono cartridge in the case of the DeskJet \
+	500C, or automatically for the other printers). 
+choice : -dBitsPerPixel=3 : -obpp3 : 3 : A standard Ghostscript colour driver, \
+	using internal dithering. This is fast to compute and to print, \
+	but the clustered dithering can lose some detail and colour fidelity. 
+choice : -dBitsPerPixel=8 : -obpp8 : 8 : An \"error-diffusion\" monochrome driver which uses \
+	Floyd-Steinberg dithering to print greyscale images. The patterns \
+	are much more randomised than with the normal clustered dithering, \
+	but the data files can be much larger and somewhat slower to print.
+choice : -dBitsPerPixel=16 : -obpp16 : 16 : A \"cheaper\" version of the 24-bit driver, \
+	which generates Floyd-Steinberg colour dithered output using \
+	the minimum memory (this may be helpful when using Ghostscript \
+	has not been compiled using a 16-bit build environment). The \
+	quality can be almost as good as the 24-bit version.
+choice : -dBitsPerPixel=24 : -obpp24 : 24 : A high-quality colour driver using \
+	Floyd-Steinberg dithering for maximum detail and colour \
+	range. However, it is very memory-intensive, and thus can be slow \
+	to compute. It tends to produce rather larger raw data files, \
+	so they can also take longer to print.
+choice : -dBitsPerPixel=32 : -obpp32 : 32 : Only for the DeskJet 550C, which uses \
+	the black cartridge and the colour cartridge simultaneously \
+	(that is, CMYK printing). This printer can both be faster and \
+	give higher quality than the DeskJet 500C, because of the true \
+	black ink. (Note that the 24-bit mode also permits CMYK printing \
+	on this printer, and uses less memory.	Any differences between \
+	24-bit and 32-bit should be small.)
+
+option : print quality : normal
+choice : -dPrintQuality=-1 : -ofast : fast : Fast mode reduces ink \
+	usage and uses single-pass operation for some media types.
+choice : -dPrintQuality=0 : -onormal : normal 
+choice : -dPrintQuality=1 : -opresentation : presentation : Presentation \
+	uses more ink and the maximum number of passes, giving slowest \
+	printing for highest quality 
+
+option : render type : render4
+choice : -dRenderType=0 : -orender0 : driver does dithering 
+choice : -dRenderType=1 : -orender1 : snap to primaries 
+choice : -dRenderType=2 : -orender2 : snap black to white, others to black 
+choice : -dRenderType=3 : -orender3 : ordered dither 
+choice : -dRenderType=4 : -orender4 : error diffusion 
+choice : -dRenderType=5 : -orender5 : monochrome ordered dither 
+choice : -dRenderType=6 : -orender6 : monochrome error diffusion 
+choice : -dRenderType=7 : -orender7 : cluster ordered dither 
+choice : -dRenderType=8 : -orender8 : monochrome cluster ordered dither 
+
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver: pjxltest : gs-pjxltest-0.1
+help : Designed for HP PaintJet XL
+
+The resolutions are a wild guess...
+resolutions : 300x300 : 600x600
+
+option : bits per pixel : bpp16
+choice : -dBitsPerPixel=1 : -obpp1 : 1 : A standard Ghostscript monochrome driver, \
+	using black ink (by installing the separate mono cartridge in the case of the DeskJet \
+	500C, or automatically for the other printers). 
+choice : -dBitsPerPixel=3 : -obpp3 : 3 : A standard Ghostscript colour driver, \
+	using internal dithering. This is fast to compute and to print, \
+	but the clustered dithering can lose some detail and colour fidelity. 
+choice : -dBitsPerPixel=8 : -obpp8 : 8 : An \"error-diffusion\" monochrome driver which uses \
+	Floyd-Steinberg dithering to print greyscale images. The patterns \
+	are much more randomised than with the normal clustered dithering, \
+	but the data files can be much larger and somewhat slower to print.
+choice : -dBitsPerPixel=16 : -obpp16 : 16 : A \"cheaper\" version of the 24-bit driver, \
+	which generates Floyd-Steinberg colour dithered output using \
+	the minimum memory (this may be helpful when using Ghostscript \
+	has not been compiled using a 16-bit build environment). The \
+	quality can be almost as good as the 24-bit version.
+choice : -dBitsPerPixel=24 : -obpp24 : 24 : A high-quality colour driver using \
+	Floyd-Steinberg dithering for maximum detail and colour \
+	range. However, it is very memory-intensive, and thus can be slow \
+	to compute. It tends to produce rather larger raw data files, \
+	so they can also take longer to print.
+choice : -dBitsPerPixel=32 : -obpp32 : 32 : Only for the DeskJet 550C, which uses \
+	the black cartridge and the colour cartridge simultaneously \
+	(that is, CMYK printing). This printer can both be faster and \
+	give higher quality than the DeskJet 500C, because of the true \
+	black ink. (Note that the 24-bit mode also permits CMYK printing \
+	on this printer, and uses less memory.	Any differences between \
+	24-bit and 32-bit should be small.)
+
+option : print quality : normal
+choice : -dPrintQuality=-1 : -ofast : fast : Fast mode reduces ink \
+	usage and uses single-pass operation for some media types.
+choice : -dPrintQuality=0 : -onormal : normal 
+choice : -dPrintQuality=1 : -opresentation : presentation : Presentation \
+	uses more ink and the maximum number of passes, giving slowest \
+	printing for highest quality 
+
+option : render type : render4
+choice : -dRenderType=0 : -orender0 : driver does dithering 
+choice : -dRenderType=1 : -orender1 : snap to primaries 
+choice : -dRenderType=2 : -orender2 : snap black to white, others to black 
+choice : -dRenderType=3 : -orender3 : ordered dither 
+choice : -dRenderType=4 : -orender4 : error diffusion 
+choice : -dRenderType=5 : -orender5 : monochrome ordered dither 
+choice : -dRenderType=6 : -orender6 : monochrome error diffusion 
+choice : -dRenderType=7 : -orender7 : cluster ordered dither 
+choice : -dRenderType=8 : -orender8 : monochrome cluster ordered dither 
+
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver: pjxltest : gs-pjtest-0.1
+help : Designed for HP PaintJet
+
+The resolutions are a wild guess...
+resolutions : 300x300 : 600x600
+
+option : bits per pixel : bpp16
+choice : -dBitsPerPixel=1 : -obpp1 : 1 : A standard Ghostscript monochrome driver, \
+	using black ink (by installing the separate mono cartridge in the case of the DeskJet \
+	500C, or automatically for the other printers). 
+choice : -dBitsPerPixel=3 : -obpp3 : 3 : A standard Ghostscript colour driver, \
+	using internal dithering. This is fast to compute and to print, \
+	but the clustered dithering can lose some detail and colour fidelity. 
+choice : -dBitsPerPixel=8 : -obpp8 : 8 : An \"error-diffusion\" monochrome driver which uses \
+	Floyd-Steinberg dithering to print greyscale images. The patterns \
+	are much more randomised than with the normal clustered dithering, \
+	but the data files can be much larger and somewhat slower to print.
+choice : -dBitsPerPixel=16 : -obpp16 : 16 : A \"cheaper\" version of the 24-bit driver, \
+	which generates Floyd-Steinberg colour dithered output using \
+	the minimum memory (this may be helpful when using Ghostscript \
+	has not been compiled using a 16-bit build environment). The \
+	quality can be almost as good as the 24-bit version.
+choice : -dBitsPerPixel=24 : -obpp24 : 24 : A high-quality colour driver using \
+	Floyd-Steinberg dithering for maximum detail and colour \
+	range. However, it is very memory-intensive, and thus can be slow \
+	to compute. It tends to produce rather larger raw data files, \
+	so they can also take longer to print.
+choice : -dBitsPerPixel=32 : -obpp32 : 32 : Only for the DeskJet 550C, which uses \
+	the black cartridge and the colour cartridge simultaneously \
+	(that is, CMYK printing). This printer can both be faster and \
+	give higher quality than the DeskJet 500C, because of the true \
+	black ink. (Note that the 24-bit mode also permits CMYK printing \
+	on this printer, and uses less memory.	Any differences between \
+	24-bit and 32-bit should be small.)
+
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...
+
+------------------------------------------------------------------------------------------------------------
+driver: declj250 : gs-declj250-0.1
+help : Designed for DEC LJ250
+
+The resolutions are a wild guess...
+resolutions : 300x300 : 600x600
+
+option : bits per pixel : bpp16
+choice : -dBitsPerPixel=1 : -obpp1 : 1 : A standard Ghostscript monochrome driver, \
+	using black ink (by installing the separate mono cartridge in the case of the DeskJet \
+	500C, or automatically for the other printers). 
+choice : -dBitsPerPixel=3 : -obpp3 : 3 : A standard Ghostscript colour driver, \
+	using internal dithering. This is fast to compute and to print, \
+	but the clustered dithering can lose some detail and colour fidelity. 
+choice : -dBitsPerPixel=8 : -obpp8 : 8 : An \"error-diffusion\" monochrome driver which uses \
+	Floyd-Steinberg dithering to print greyscale images. The patterns \
+	are much more randomised than with the normal clustered dithering, \
+	but the data files can be much larger and somewhat slower to print.
+choice : -dBitsPerPixel=16 : -obpp16 : 16 : A \"cheaper\" version of the 24-bit driver, \
+	which generates Floyd-Steinberg colour dithered output using \
+	the minimum memory (this may be helpful when using Ghostscript \
+	has not been compiled using a 16-bit build environment). The \
+	quality can be almost as good as the 24-bit version.
+choice : -dBitsPerPixel=24 : -obpp24 : 24 : A high-quality colour driver using \
+	Floyd-Steinberg dithering for maximum detail and colour \
+	range. However, it is very memory-intensive, and thus can be slow \
+	to compute. It tends to produce rather larger raw data files, \
+	so they can also take longer to print.
+choice : -dBitsPerPixel=32 : -obpp32 : 32 : Only for the DeskJet 550C, which uses \
+	the black cartridge and the colour cartridge simultaneously \
+	(that is, CMYK printing). This printer can both be faster and \
+	give higher quality than the DeskJet 500C, because of the true \
+	black ink. (Note that the 24-bit mode also permits CMYK printing \
+	on this printer, and uses less memory.	Any differences between \
+	24-bit and 32-bit should be small.)
+
+argument : -sPaperSize : -apaper : letter : paper size : Set papersize to letter, legal, a3, a4, etc...

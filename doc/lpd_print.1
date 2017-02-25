@@ -1,0 +1,62 @@
+.TH LPD_PRINT 1 "APRIL 1999" Linux "pdq printing manuals"
+.SH NAME
+lpd_print \- send a file to a remote lpd print spooler
+.SH SYNOPSIS
+.BI "lpd_print [-f " file "] [-j " id_num "] [-v] [-n] " queue @ host 
+.BI " | " host " [" queue ]
+.SH DESCRIPTION
+.B lpd_print 
+sends data to the BSD line printer daemon at 
+.IR host .
+The job is spooled to  
+.IR queue ,
+or 
+.I lp
+if not specified.  The job id given to the remote host is
+.IR id_num ,
+or 1 if not specified.  If 
+.I file
+is not specified, 
+.B lpd_print
+sends data from 
+.BR STDIN .
+No banner page will be printed.
+
+To be compliant with RFC-1179, this program must run SUID root, so that
+a privileged outbound port may be used.  However, many lpd servers found on
+networked printers do not enforce this requirement.
+.SH OPTIONS
+.IP "-f \fIfile"
+Send data from 
+.I file
+instead of
+.BR STDIN .
+.IP "-j \fIjob_id"
+Set the job id to be
+.IR job_id .
+This should be a three digit number from 001 to 999.  Default is 001.
+.IP -v
+Print warnings and fatal errors.
+.IP -vv
+Print warnings, fatal errors, and informative messages.
+.IP -vvv
+Print everything (debug level).
+.IP -n
+Select the "nasty" cancel model.  If a 
+.BR SIGTERM 
+is received and job data is being sent, close the socket immediately.  This
+may cause confusion and timeout problems on the remote server.
+.SH SIGNALS
+Upon receipt of 
+.BR SIGTERM ,
+lpd_print will send the remote server an abort command, if possible.  If
+data is already being sent, the data will finish sending and an abort
+command will be sent, unless the -n option is chosen, in which case the
+socket will close immediately.
+.SH BUGS
+The timeout value for the connect is not adjustable.  Many details of the 
+control file cannot be specified.
+.SH AUTHOR
+Jacob A. Langford <langford@uiuc.edu>
+.SH SEE ALSO
+lpd_status(1), lpd_cancel(1), RFC-1179

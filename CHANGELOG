@@ -1,0 +1,36 @@
+2.2.1:
+
+   - Fixed lpd_print to handle wrong hostnames without errors.
+   - Fixed lpd_print to handle empty files without errors.
+   - Fix tooltip setting problems in xpdq.
+   - Automatically put options in horizontal/vertical list based on
+     length of descriptions and number of options.
+   - Make xpdq printer list window size larger by default.
+   - Modified shepherd to "touch" input file of send script, in 
+     case the driver had no output
+   - Modified lpd_print to disable buffering on STDOUT, so that 
+     status updates will show.
+   - Modified lpd_print to give status updates, catch SIGTERM, and
+     handle aborts in a clean or nasty way.
+   - Modified cancel model; uses process groups
+   - Fixed *bad* memory leak in xpdq. 
+   - Fixed problem where jobs show "aborted" on cancel.  Fixed lots of
+     other status problems
+   - Deleted named_status pipe mechanism, and replaced it with a more
+     robust status mechanism
+   - Changed try_include to ignore files beginning in . or ending in ~
+   - Added --debug-rc option to show where resources come from
+   - Fixed bug in a driver redefinitions (free'd wrong type)
+
+
+2.1.2: 
+
+   - Fixed bugs in pdq_main.c, one of which prevented stdin operation
+     on AIX due to a malloc curiosity.
+   - Allow global printrc file to be specified in Makefile, and changed the
+     default location to /etc/pdq/printrc.
+   - Created cleaner distribution of drivers and interfaces
+
+2.1.1:
+
+   - First publicly released version

@@ -1,0 +1,118 @@
+
+# Copyright 1999 Jacob A. Langford
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2, as 
+# published by the Free Software Foundation.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+SHELL = /bin/sh
+top_srcdir = @top_srcdir@
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+pdqlibdir = @pdqlibdir@
+
+.SUFFIXES: .c .o
+
+OPT=-g -O
+
+AR = ar
+AR_FLAGS = rc
+RANLIB = @RANLIB@
+
+CC = @CC@
+CFLAGS = -I. @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+INSTALL = @INSTALL@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+mandir = $(exec_prefix)/man
+libdir = $(prefix)/lib
+infodir = $(prefix)/info
+
+OBJS=
+DOCS=
+MISC=
+LIB_OBJS=
+
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_CONFIG = @GLIB_CONFIG@
+GLIB_LIBS = @GLIB_LIBS@
+GTK_CFLAGS = @GTK_CFLAGS@
+GTK_CONFIG = @GTK_CONFIG@
+GTK_LIBS = @GTK_LIBS@
+
+.c.o:
+	$(CC) -c $(GTK_CFLAGS) $<
+
+
+all:
+
+dirs =  $(pdqlibdir) \
+	$(pdqlibdir)/drivers \
+	$(pdqlibdir)/drivers/generic \
+	$(pdqlibdir)/drivers/ghostscript \
+	$(pdqlibdir)/drivers/postscript \
+	$(pdqlibdir)/drivers/misc \
+	$(pdqlibdir)/interfaces
+
+files = ./drivers/misc/hp-laserjet-5-0.9 \
+	./drivers/generic/generic-postscript-1.2 \
+	./drivers/generic/printcap-emulation-1.0 \
+	./drivers/generic/generic-text-only-1.1 \
+	./drivers/ghostscript/gs-bjc600-0.1 \
+	./drivers/ghostscript/gs-bjc800-0.1 \
+	./drivers/ghostscript/gs-cdj1600-0.1 \
+	./drivers/ghostscript/gs-cdj500-0.1 \
+	./drivers/ghostscript/gs-cdj550-0.1 \
+	./drivers/ghostscript/gs-cdj670-0.1 \
+	./drivers/ghostscript/gs-cdj850-0.1 \
+	./drivers/ghostscript/gs-cdj890-0.1 \
+	./drivers/ghostscript/gs-declj250-0.1 \
+	./drivers/ghostscript/gs-pjtest-0.1 \
+	./drivers/ghostscript/gs-pjxl300-0.1 \
+	./drivers/ghostscript/gs-pjxltest-0.1 \
+	./drivers/ghostscript/gs-stcolor-0.1 \
+	./drivers/ghostscript/gs-uniprint-simple-0.1 \
+	./drivers/postscript/hp-4050-tn-1.0 \
+	./drivers/postscript/hp-2500-cm-2.0 \
+	./drivers/postscript/qms-magicolor-cx-1.1 \
+	./interfaces/bsd-lpd-2.0 \
+	./interfaces/efax-0.1 \
+	./interfaces/tcp-port-2.0 \
+	./interfaces/appletalk-1.0 \
+	./interfaces/local-port-1.0 \
+	./printrc.example
+
+install: all
+	@for dir in ${dirs}; do \
+	$(top_srcdir)/mkinstalldirs $$dir; done
+	@for file in ${files}; do \
+	$(INSTALL) $$file $(pdqlibdir)/$$file; done
+
+uninstall:
+	/bin/rm -f $(pdqlibdir)/interfaces
+	/bin/rm -f $(pdqlibdir)/drivers
+	/bin/rm -f $(pdqlibdir)/printrc.example
+	/bin/rmdir $(pdqlibdir)
+
+clean:
+	/bin/rm -f core *.o $(OBJS) $(LIB_OBJS)
+
+distclean: clean
+	/bin/rm -f Makefile config.h config.status config.cache config.log 
+
+mostlyclean: clean
+
+maintainer-clean: clean

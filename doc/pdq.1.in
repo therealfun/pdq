@@ -1,0 +1,82 @@
+.TH PDQ 1 "JANUARY 2000" Linux "pdq printing manuals"
+.SH NAME
+pdq \- print one or more files 
+.SH SYNOPSIS
+.BI "pdq [-h | --help] [--debug-rc] [-d | -P " printer " ] "
+.BI "[-o" option "] [-a" VAR = value "]"
+.BI "[-O" option "] [-A" VAR = value "]" " file1 file2 ..."
+.SH DESCRIPTION
+.B pdq
+prints the listed files, or 
+.B STDIN
+if none is listed.  The 
+.I printer 
+is selected with the 
+.BR -d " or " -P 
+flag.  If none is given, the job is sent to the default printer.
+Driver options and arguments are specified with the
+.BR -o " and " -a 
+flags respectively.  Interface options and arguments are specified with the
+.BR -O " and " -A 
+flags respectively.  To show printer-specific options and arguments,
+pass the 
+.BR -h " or " --help
+flag, and at the same time select a particular printer with the
+.BR -d " or " -P
+flag.
+.SH OPTIONS
+.IP "-a \fIVAR\fR=\fIvalue"
+Set driver argument
+.I VAR
+to 
+.IR value .  
+.IP "-A \fIVAR\fR=\fIvalue"
+Set interface argument
+.I VAR
+to 
+.IR value .  
+.IP "-d \fIprinter"
+Send job to
+.IR printer .
+The
+.B -P
+option may also be used to select
+.IR printer .
+.IP "-h, --help "
+Show summary usage.  If no printer is selected, a list of available
+printers will be displayed.  If a printer is selected, available options
+and arguments will be displayed.
+.IP "--debug-rc "
+Be verbose as resources are defined, redefined, and deleted, and as options
+and parameters are set, then exit.  Hacking a driver and nothing happens?  
+Are you hacking the wrong file?  Use this option to see where that pesky 
+driver is hiding.
+.IP "-o \fIoption"
+Select driver option 
+.IR option .
+.IP "-O \fIoption"
+Select interface option 
+.IR option .
+.IP "-P \fIprinter"
+Send job to
+.IR printer .
+The
+.B -d
+option may also be used to select
+.IR printer .
+.SH FILES
+.I @printrc_file@
+.RS 
+The system wide configuration file.  See 
+.BR printrc (5) 
+for further details.
+.RE
+.I ~/.printrc
+.RS
+Per user configuration file. See
+.BR printrc (5)
+for further details.
+.SH AUTHOR
+Jacob A. Langford <langford@uiuc.edu>
+.SH SEE ALSO
+xpdq(1), printrc(5), pdqstat(1)

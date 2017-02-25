@@ -1,0 +1,490 @@
+.TH PRINTRC 5 "JANUARY 2000" Linux "pdq printing manuals"
+.SH NAME
+printrc \- Printer resource database
+.SH SYNOPSIS
+.B printrc
+.SH DESCRIPTION
+This document describes the structure of the printrc files.  The files
+.IR @printrc_file@ " and " "~/.printrc" 
+are parsed, if they exist, and solely determine the print resources
+available, although each printrc file may include other rc files.
+.SH LEXICAL STRUCTURE
+Each printrc file consists of a series of blocks separated by whitespace.
+In this context, a block is defined to be either a simple word constructed
+of 
+.I [A-Z] [a-z] [0-9]  _ . / : @ - 
+or any characters enclosed in delimiters
+.IR "{} [] () '' """"" . 
+Delimiters may be included in the block by escaping them
+with \fI\\\fR.  Whitespace is defined to be spaces, tabs, newlines, any of 
+.I # ; , = 
+and characters between 
+.I # 
+and newline.
+.SH TOP-LEVEL KEYWORDS
+Keywords defined in this section may be included anywhere in the rc file.
+Some items (such as printers, drivers, and interfaces) look for other sets
+of keywords within their description block.  Those cases are documented in
+subsequent sections.  Repeated occurrences of keywords overwrite earlier
+definitions, except for uniquely named printers, drivers, and interfaces.
+.IP "include \fIpattern"
+All files matching 
+.I pattern
+are opened and parsed as printrc files.  If 
+any matched file cannot be opened, or if no files match 
+.IR pattern ,
+parsing stops with an error.   Note that 
+.I pattern
+is first tilde expanded, then globbed.
+.IP "try_include \fIpattern"
+All files matching 
+.I pattern
+are opened and parsed as printrc files.  If 
+any matched file cannot be opened, or if no files match 
+.IR pattern ,
+parsing continues without errors.  Note that 
+.IR pattern
+is first tilde expanded, then globbed.  Files beginning in
+.BR ". " and
+ending in
+.BR "~ " are 
+ignored, as they are probably editor backup files.
+.IP "printer \fIname block"
+A printer named 
+.I name
+is defined in 
+.IR block . 
+Structure of 
+.I block is
+described later in this file.
+.IP "driver \fIname block"
+A driver named 
+.I name
+is defined in 
+.IR block . 
+Structure of 
+.I block
+is described later in this file.
+.IP "interface \fIname block"
+An interface named 
+.Iname
+is defined in 
+.IR block .  
+Structure of 
+.I block
+is described later in this file.
+.IP "default_printer \fIprinter"
+The printer named 
+.I printer
+will be used as the default printer.  There is no default.
+.IP "job_dir \fIdirectory"
+The job work directory will be set to 
+.IR directory . 
+Note that 
+.I directory
+is tilde-expanded.  The default is 
+.IR "~/.printjobs" .
+.IP "interface_command_path \fIpath"
+The environment variables 
+.B PATH 
+will be set to 
+.I path
+for all scripts defined in the interfaces.  The default is 
+.IR "bin:/usr/bin:/usr/local/bin" .
+.IP "driver_command_path \fIpath"
+The environment variables 
+.B PATH 
+will be set to 
+.I path
+for all scripts
+defined in the drivers.  The default is 
+.IR "bin:/usr/bin:/usr/local/bin" .
+.IP "max_send_tries \fIi"
+The interface script 
+.I send_exec 
+will be executed at most 
+.I i 
+times before 
+the job aborts.  The default is 
+.IR 30 .
+.IP "delay_between_tries \fIi"
+If the interface script 
+.I send_exec 
+fails, 
+.I i
+seconds should pass before
+re-executing the script.  The default is 
+.IR 10 .
+.IP "job_history_duration \fIi"
+Any information in the job directory (
+.I job_dir
+) will not be deleted until
+it is at least 
+.I i
+seconds old.  The default is 
+.I 259200
+(3 days).
+.SH PRINTER KEYWORDS
+.IP "driver \fIname"
+The block 
+.I name
+is taken to be the name of the driver for this printer.  The driver must
+be defined elsewhere in the printrc files.
+.IP "interface \fIname"
+The block 
+.I name
+is taken to be the name of the interface for this printer.
+The interface must be defined elsewhere in the printrc files.
+.IP "driver_opts \fIblock"
+Options for the driver are contained in 
+.IR block ,
+which consists of option names separated by whitespace.
+.IP "driver_args \fIblock"
+Arguments for the driver are contained in 
+.IR block ,
+which consists of pairs of argument name and argument value separated by
+whitespace.
+.IP "interface_opts \fIblock"
+Options for the interface are contained in 
+.IR block ,
+which consists of option names separated by whitespace.
+.IP "interface_args \fIblock"
+Arguments for the interface are contained in 
+.IR block ,
+which consists of pairs of argument name and argument value separated by
+whitespace.
+.IP "location \fIdescription"
+The block 
+.I description
+is taken to be the descriptive location of 
+the printer.  This keyword should not affect functionality.
+.IP "model \fIdescription"
+The block 
+.I description
+is taken to be the descriptive model name  of 
+the printer.  This keyword should not affect functionality.
+.IP delete
+This printer and all prior declarations of the same name are ignored.  This
+keyword is provided so that ordinary users may remove entries for printers
+defined in global resource files.
+.SH DRIVER KEYWORDS
+.IP "filetype_exec \fIscript"
+The argument 
+.I script
+is taken to be a shell script.  If the interpreter
+command is not specified with a shebang, it is taken to be 
+.IR "/bin/sh" .  
+The function of the script is to determine the type of the file named in the
+environment variable 
+.BR INPUT .  
+A description of the filetype should be printed to 
+.IR stdout , 
+and should be less than 1024 bytes.  Any messages printed to 
+.I sterr 
+will be logged.  If the exit code is not zero the print job will abort.
+The default is 
+.IR file .
+.IP "verify_exec \fIscript"
+The argument 
+.I script
+is taken to be a shell script.  If the interpreter command is not 
+specified with a shebang, it is taken to be 
+.IR "/bin/sh" .  
+The function of the script is to determine whether or not the system has 
+capabilities required by this component.  If the script exits with
+nonzero status, the component is taken to be unavailable.  Informative 
+failure messages should be sent to either 
+.I stdout 
+or 
+.IR stderr .
+The default is not to execute anything.
+.IP "requires \fIfiles"
+The argument 
+.I files
+is taken to be a whitespace-separated list of program names required by this 
+component.  Each item in the list must be found in the relevant path, and 
+have executable permissions.  Otherwise the component is taken to be 
+unavailable.
+.IP "filter_exec \fIscript"
+The argument 
+.I script
+is taken to be a shell script.  If the interpreter command is not specified 
+with a shebang, it is taken to be 
+.IR "/bin/sh" .  
+The function of the script is to filter the file named by environment variable
+.BR INPUT .  
+The filtered output should be written to the file named by environment 
+variable 
+.BR OUTPUT .
+Note that other scripts are used to convert into an appropriate language.
+This script should only be used to finalize the document before sending it 
+to the printer.  If the script exits with nonzero status, the job is aborted.
+Informative failure messages should be sent to either 
+.I stdout 
+or 
+.IR stderr .
+This script also has access to all environment variables set by options and 
+arguments for this component. The default is
+.I "ln -s "
+.BR "$OUTPUT $INPUT" .
+.IP "language_driver \fIblock"
+A language-driver named 
+.I name
+is defined in 
+.IR block .  
+Structure of 
+.I block
+is described later in this file.
+.IP "option \fIblock"
+An option for this component is defined in 
+.IR block .  
+Structure of 
+.I block 
+is described later in this file.
+.IP "default_options \fIlist"
+The argument 
+.I list
+is taken to be a whitespace-separated list of default
+options for this component.  
+.IP "argument \fIblock"
+An argument for this component is defined in 
+.IR block .  
+Structure of 
+.I block
+is described later in this file.
+.IP "required_args \fIlist"
+The argument 
+.I list
+is taken to be a whitespace-separated list of
+names of arguments required for this component.  If required arguments are
+not specified in a printer definition or passed through command-line
+options, the component will be unavailable.
+.IP "help \fItext"
+The argument 
+.I text
+should describe the driver and list printers that are known to work.  
+Newlines, tabs, and spaces all get compressed to a
+single space.  Tabs and newlines may be added by using \\n and \\t.  The
+.I help
+keyword does not affect functionality.
+.SH LANGUAGE-DRIVER KEYWORDS
+.IP "convert_exec \fIscript"
+The argument 
+.Iscript
+is taken to be a shell script.  If the interpreter
+command is not specified with a shebang, it is taken to be 
+.IR "/bin/sh" .  
+The function of the script is to convert the file named by environment variable
+.B INPUT 
+into a form suitable for printing (or into a form expected by the
+.I filter_exec 
+script defined for the driver).  The converted output should 
+be written to the file named by environment variable 
+.BR OUTPUT . 
+If the script exits with nonzero status, the job is aborted.
+Informative failure messages should be sent to either 
+.I stdout 
+or 
+.IR stderr .
+This script also has access to all environment variables set by
+options for this component, as well as those set by options and
+arguments for the driver in which it is defined. The default is
+.I "ln -s "
+.BR "$OUTPUT $INPUT " .
+.IP "filetype_regx \fIpattern"
+If 
+.I pattern
+matches any part of the filetype, as returned by the 
+filetype_exec script defined in the driver, then this language driver
+will be used to convert the print job.  The language drivers are tried
+in the sequence they are defined, and the first match selects a language
+driver.
+.SH INTERFACE KEYWORDS
+.IP "verify_exec \fIscript"
+The argument 
+.I script
+is taken to be a shell script.  If the interpreter
+command is not specified with a shebang, it is taken to be 
+.IR "/bin/sh" . 
+The function of the script is to determine whether or not the system has 
+capabilities required by this component.  If the script exits with
+nonzero status, the component is taken to be unavailable.  Informative 
+failure messages should be sent to either 
+.I stdout 
+or 
+.IR stderr .
+The default is not to execute anything.
+.IP "requires \fIfiles"
+The argument 
+.I files
+is taken to be a whitespace-separated list of program names required
+by this component.  Each item in the list must be found in the relevant
+path, and have executable permissions.  Otherwise the component is taken
+to be unavailable.
+.IP "send_exec \fIscript"
+The argument 
+.Iscript
+is taken to be a shell script.  If the interpreter command is not
+specified with a shebang, it is taken to be
+.IR "/bin/sh" .  
+The function of the script is to send the file named by environment variable 
+.B INPUT 
+to the printer.  If the script exits with nonzero status, the script will be 
+re-executed at intervals of 
+.I delay_between_tries 
+seconds, up to 
+.I max_send_tries 
+times.  Informative failure messages should be sent to either 
+.I stdout 
+or 
+.IR stderr .
+This script also has access to all environment variables set by
+options and arguments for this component.  
+There is no default value for 
+.IR send_exec .
+Specification of this script is required.
+.IP "cancel_exec \fIscript"
+The argument 
+.Iscript
+is taken to be a shell script.  If the interpreter command is not
+specified with a shebang, it is taken to be
+.IR "/bin/sh" .  
+The function of the script is to cancel a printing job.  If the
+.I send_exec
+script is still executing, it will be sent a
+.B SIG_TERM
+signal and 
+.I cancel_exec
+will immediately be executed.  The exit code of the script is ignored.
+This script also has access to all environment variables set by
+options and arguments for this component.
+There is no default value for 
+.IR cancel_exec .
+.IP "status_exec \fIscript"
+The argument 
+.Iscript
+is taken to be a shell script.  If the interpreter command is not
+specified with a shebang, it is taken to be
+.IR "/bin/sh" .  
+The function of the script is to print the status of the printer.
+This script also has access to all environment variables set by
+options and arguments for this component.
+There is no default value for 
+.IR status_exec .
+.IP "option \fIblock"
+An option for this component is defined in 
+.IR block .  
+Structure of 
+.I block
+is described later in this file.
+.IP "default_options \fIlist"
+The argument 
+.I list
+is taken to be a whitespace-separated list of default options for this 
+component.  
+.IP "argument \fIblock"
+An argument for this component is defined in 
+.IR block . 
+Structure of 
+.I block
+is described later in this file.
+.IP "required_args \fIlist"
+The argument 
+.I list
+is taken to be a whitespace-separated list of names of arguments required
+for this component.  If all arguments are not available either through
+printrc specification or command-line specification, the component will
+be unavailable.
+.IP "help \fItext"
+The argument 
+.I text
+should describe the interface.
+Newlines, tabs, and spaces all get compressed to a
+single space.  Tabs and newlines may be added by using \\n and \\t.  The
+.I help
+keyword does not affect functionality.
+.SH ARGUMENT KEYWORDS
+.IP "var \fIname"
+The environment variable controlled by this argument is 
+.IR name .
+.IP "desc \fItext"
+A very short description of the argument should be provided in 
+.IR text .
+.IP "def_value \fIstring"
+If this argument is not specified, the default value will be 
+.IR string .
+.IP "help \fItext"
+A short description of the argument should be provided in 
+.IR text .
+Newlines, tabs, and spaces all get compressed to a
+single space.  Tabs and newlines may be added by using \\n and \\t.
+The contents of
+.I text
+will be displayed in popup tooltips of utilities that allow graphical
+selection of printer arguments.
+.SH OPTION KEYWORDS
+.IP "var \fIname"
+The environment variable controlled by this option is 
+.IR name .
+.IP "choice \fIname block"
+A choice named
+.I name
+is described in
+.IR block .
+The choices are used to control the values of environment variable
+specified by
+.IR var ,
+and 
+.I name
+is used to select the option from the command line.  
+.IP "desc \fItext"
+A very short description of the option should be provided in 
+.IR text .
+.IP "default_choice \fIname"
+If no choice for this option is specified, the choice
+.I name
+will be used.  If 
+.I default_choice
+is not specified, the first choice listed is taken to be the default.
+.SH CHOICE KEYWORDS
+.IP "desc \fItext"
+A very short description of the option should be provided in 
+.IR text .
+.IP "value \fIstring"
+If this choice is selected, the environment variable 
+.IR var ,
+which is given as an
+.I option
+keyword, will be 
+.IR string .
+.IP "help \fItext"
+A short description of the choice should be provided in 
+.IR text .
+Newlines, tabs, and spaces all get compressed to a
+single space.  Tabs and newlines may be added by using \\n and \\t.
+The contents of
+.I text
+will be displayed in popup tooltips of utilities that allow graphical
+selection of printer options.
+.SH STATUS MESSAGES
+The 
+.BR convert_exec ", " filter_exec ", " filetype_exec ", " 
+and
+.BR "send_exec " scripts
+may also set the
+status of the printjob by writing to the file named by environment
+variable 
+.BR STATUS .  
+The status will be set to the last nontrivial line in this file, not
+to exceed 1023 characters.
+Note that IO buffering may cause delays in status updates.  The status
+file almost always overrides internal status messages.
+
+.SH BUGS
+Some interpreters (such as perl) have different locations on different
+systems.  There should be a means of defining interpreter locations so that
+the shebang line of the exec scripts can be fixed before execution.
+.SH AUTHOR
+Jacob A. Langford <langford@uiuc.edu>
+.SH SEE ALSO
+pdq(1), xpdq(1), pdqstat(1)

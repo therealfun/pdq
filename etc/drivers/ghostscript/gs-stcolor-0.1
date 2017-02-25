@@ -1,0 +1,211 @@
+driver "gs-stcolor" {
+   
+	help "For the Epson Stylus series inkjet printers.\nAlso see uniprint."
+
+	requires "gs"
+
+	verify_exec {
+		(gs -h |grep -q stcolor) || 
+		(echo "Ghostscript driver stcolor is required"; exit 1)
+	}
+
+	option {
+		desc = "resolution"
+		var = OPTION_1
+
+		choice "360x360" {
+			value = "-r360x360"
+			desc = "360x360"
+			help = "Print at 360x360 dpi"
+		}
+		choice "720x720" {
+			value = "-r720x720"
+			desc = "720x720"
+			help = "Print at 720x720 dpi"
+		}
+		choice "360x720" {
+			value = "-r360x720"
+			desc = "360x720"
+			help = "Print at 360x720 dpi"
+		}
+		choice "720 x 360" {
+			value = "-r720 x 360"
+			desc = "720 x 360"
+			help = "Print at 720 x 360 dpi"
+		}
+		choice "180x180" {
+			value = "-r180x180"
+			desc = "180x180"
+			help = "Print at 180x180 dpi"
+		}
+	}
+
+	option {
+		desc = "weaving"
+		var = OPTION_2
+
+		default_choice "microweave"
+
+		choice "microweave" {
+			value = "-dMicroweave"
+			desc = "enabled"
+			help = "Enable the printer's (internal) microweave feature."
+		}
+		choice "noweave" {
+			value = "-dnoWeave"
+			desc = "disabled"
+			help = "Disable any weaving."
+		}
+	}
+
+	option {
+		desc = "dithering algorithm"
+		var = OPTION_3
+
+		default_choice "fscmyk"
+
+		choice "fscmyk" {
+			value = "-sDithering=fscmyk"
+			desc = "Floyd-Steinberg, CMYK color model"
+			help = ""
+		}
+		choice "hscmyk" {
+			value = "-sDithering=hscmyk"
+			desc = "modified Floyd-Steinberg, CMYK color model"
+			help = ""
+		}
+		choice "fsrgb" {
+			value = "-sDithering=fsrgb"
+			desc = "Floyd-Steinberg, RGB color model"
+			help = ""
+		}
+		choice "fs2" {
+			value = "-sDithering=fs2"
+			desc = "algorithm by Steve Singer, RGB color model "
+			help = ""
+		}
+		choice "gsrgb" {
+			value = "-sDithering=gsrgb"
+			desc = "fast color output, RGB color model"
+			help = ""
+		}
+		choice "gscmyk" {
+			value = "-sDithering=gscmyk"
+			desc = "fast color output, CMYK color model"
+			help = ""
+		}
+		choice "fsmono" {
+			value = "-sDithering=fsmono"
+			desc = "Floyd-Steinberg, monochrome"
+			help = ""
+		}
+		choice "gsmono" {
+			value = "-sDithering=gsmono"
+			desc = "fast monocrome output"
+			help = ""
+		}
+	}
+
+	option {
+		desc = "bidirectional printing"
+		var = OPTION_4
+
+		default_choice "bidirectional"
+
+		choice "bidirectional" {
+			value = ""
+			desc = "enabled"
+			help = "Head prints when traveling in either direction"
+		}
+		choice "unidirectional" {
+			value = "-dUnidirectional"
+			desc = "disabled"
+			help = "Head prints only when traveling in one direction"
+		}
+	}
+
+	option {
+		desc = "use stcolor.ps"
+		var = OPTION_5
+
+		default_choice "nostcolor.ps"
+
+		choice "stcolor.ps" {
+			value = "stcolor.ps"
+			desc = "yes"
+			help = "Add the driver library file stcolor.ps to the print job"
+		}
+		choice "nostcolor.ps" {
+			value = "stcolor.ps"
+			desc = "no"
+			help = "Do not add the driver library file stcolor.ps to the print job"
+		}
+	}
+
+
+
+	option {
+		var = FIX_STAIRCASE;
+		desc = "staircase text correction"
+		choice scyes {
+			value = "YES"
+			desc = "fix staircased text problems"
+			help = "Fixes printouts\n\t\tthat look\n\t\t\t\tlike this!"
+		}
+		choice scno {
+			value = "NO"
+			desc = "leave text alone"
+		}
+	}
+
+	argument {
+		var = "bpp"
+		desc = "bits per pixel"
+		help = "Bits per pixel (1 - 32), higher for more quality"
+		def_value = "30"
+	}			
+	argument {
+		var = "paper"
+		desc = "paper size"
+		help = "Set papersize to letter, legal, a3, a4, etc..."
+		def_value = "letter"
+	}			
+
+
+	language_driver postscript {}    # Nothing to do...
+
+	language_driver text {
+		convert_exec = {
+		     if [ "$FIX_STAIRCASE" = "YES" ]; then
+			sed 's/$//' $INPUT > $OUTPUT;
+		     else
+			ln -s $INPUT $OUTPUT;
+		     fi
+		     touch $OUTPUT.ok;  # Tell filter_exec not to invoke gs
+		}
+	}
+
+	filter_exec {
+		if ! test -e $INPUT.ok; then
+         		gs \
+             			-q -dBATCH -dSAFER -dNOPAUSE \
+				-sDEVICE=stcolor \
+	     			-sOutputFile=$OUTPUT \
+				-dBitsPerPixel=$bpp \
+				-sPaperSize=$paper \
+				$OPTION_1 \
+				$OPTION_2 \
+				$OPTION_3 \
+				$OPTION_4 \
+				$OPTION_5 \
+				$INPUT
+	     		if ! test -e $OUTPUT; then 
+	        		echo "ABORTED: Ghostscript had no output." >> $STATUS
+				exit 1
+             		fi
+             	else
+			ln -s $INPUT $OUTPUT;
+             	fi
+	}
+
+}

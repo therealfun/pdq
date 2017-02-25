@@ -1,0 +1,183 @@
+
+# Copyright 1999, 2000 Jacob A. Langford
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2, as 
+# published by the Free Software Foundation.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+SHELL = /bin/sh
+top_srcdir = @top_srcdir@
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+printrc_file = @printrc_file@
+
+.SUFFIXES: .c .o
+
+OPT= -O
+
+AR = ar
+AR_FLAGS = rc
+RANLIB = @RANLIB@
+
+CC = @CC@
+CFLAGS = -I. @CFLAGS@ -DPRINTRC_FILE=\"$(printrc_file)\"
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+INSTALL = @INSTALL@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+libdir = $(prefix)/lib
+infodir = $(prefix)/info
+
+PDQ_SOURCES=pdq_main.c\
+	pdq_usage.c
+XPDQ_SOURCES=xpdq_job.c\
+	xpdq_main.c\
+	xpdq_option.c\
+	xpdq_preferences.c\
+	xpdq_printer.c\
+	xpdq_wizard.c
+COMMON_SOURCES=argument.c\
+	driver.c\
+	environment.c\
+	interface.c\
+	job.c\
+	lex.c\
+	list.c\
+	option.c\
+	parse.c\
+	parse_rc.c\
+	pdq.c\
+	shepherd.c\
+	printer.c\
+	rc_items.c\
+	reaper.c\
+	util.c
+PDQ_OBJS=pdq_main.o\
+	pdq_usage.o
+XPDQ_OBJS=xpdq_job.o\
+	xpdq_main.o\
+	xpdq_option.o\
+	xpdq_preferences.o\
+	xpdq_printer.o\
+	xpdq_wizard.o
+COMMON_OBJS=argument.o\
+	driver.o\
+	environment.o\
+	interface.o\
+	job.o\
+	lex.o\
+	list.o\
+	option.o\
+	parse.o\
+	parse_rc.o\
+	shepherd.o\
+	printer.o\
+	rc_items.o\
+	reaper.o\
+	util.o
+OBJS=$(COMMON_OBJS) $(PDQ_OBJS) $(XPDQ_OBJS)
+DOCS=
+MISC=
+LIB_OBJS=
+
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_CONFIG = @GLIB_CONFIG@
+GLIB_LIBS = @GLIB_LIBS@
+GTK_CFLAGS = @GTK_CFLAGS@
+GTK_CONFIG = @GTK_CONFIG@
+GTK_LIBS = @GTK_LIBS@
+
+
+all: pdq @GTK_OBJS@
+
+install: pdq_install @GTK_INSTALL_OBJS@
+
+pdq_install: pdq
+	$(top_srcdir)/mkinstalldirs $(bindir)
+	$(INSTALL) pdq $(bindir)/pdq
+
+xpdq_install: xpdq
+	$(top_srcdir)/mkinstalldirs $(bindir)
+	$(INSTALL) xpdq $(bindir)/xpdq
+
+uninstall:
+	/bin/rm -f $(bindir)/pdq
+	/bin/rm -f $(bindir)/xpdq
+
+pdq: $(COMMON_OBJS) $(PDQ_OBJS)
+	$(CC) $(CFLAGS) -o pdq $(COMMON_OBJS) $(PDQ_OBJS) $(LIBS)
+
+xpdq: $(COMMON_OBJS) $(XPDQ_OBJS)
+	$(CC) -o xpdq $(CFLAGS) $(GTK_CFLAGS) $(XPDQ_OBJS) $(COMMON_OBJS) \
+	$(LIBS) $(GTK_LIBS)
+
+
+clean:
+	/bin/rm -f core *.o $(OBJS) $(LIB_OBJS)
+
+distclean: clean
+	/bin/rm -f Makefile config.h config.status config.cache config.log 
+
+mostlyclean: clean
+
+maintainer-clean: clean
+
+
+argument.o: argument.c list.h lex.h parse.h argument.h util.h
+	$(CC) -c $(CFLAGS) argument.c
+driver.o: driver.c driver.h option.h argument.h parse.h list.h lex.h util.h job.h environment.h shepherd.h reaper.h
+	$(CC) -c $(CFLAGS) driver.c
+environment.o: environment.c option.h argument.h util.h job.h list.h
+	$(CC) -c $(CFLAGS) environment.c
+interface.o: interface.c interface.h option.h argument.h parse.h list.h lex.h util.h job.h environment.h shepherd.h reaper.h
+	$(CC) -c $(CFLAGS) interface.c
+job.o: job.c job.h util.h list.h
+	$(CC) -c $(CFLAGS) job.c
+lex.o: lex.c lex.h
+	$(CC) -c $(CFLAGS) lex.c
+list.o: list.c list.h
+	$(CC) -c $(CFLAGS) list.c
+option.o: option.c option.h lex.h parse.h util.h
+	$(CC) -c $(CFLAGS) option.c
+parse.o: parse.c parse.h util.h lex.h
+	$(CC) -c $(CFLAGS) parse.c
+parse_rc.o: parse_rc.c parse.h lex.h parse_rc.h util.h rc_items.h printer.h driver.h interface.h
+	$(CC) -c $(CFLAGS) parse_rc.c
+pdq_main.o: pdq_main.c rc_items.h parse_rc.h list.h util.h job.h argument.h pdq_usage.h shepherd.h reaper.h
+	$(CC) -c $(CFLAGS) pdq_main.c
+pdq_usage.o: pdq_usage.c job.h util.h pdq_usage.h printer.h
+	$(CC) -c $(CFLAGS) pdq_usage.c
+printer.o: printer.c rc_items.h parse.h parse.h list.h parse_rc.h printer.h util.h lex.h
+	$(CC) -c $(CFLAGS) printer.c
+rc_items.o: rc_items.c rc_items.h util.h list.h printer.h driver.h interface.h
+	$(CC) -c $(CFLAGS) rc_items.c
+reaper.o: reaper.c reaper.h
+	$(CC) -c $(CFLAGS) reaper.c
+shepherd.o: shepherd.c util.h option.h argument.h shepherd.h reaper.h environment.h
+	$(CC) -c $(CFLAGS) shepherd.c
+util.o: util.c util.h
+	$(CC) -c $(CFLAGS) util.c
+xpdq_job.o: xpdq_job.c xpdq.h util.h list.h driver.h interface.h printer.h argument.h job.h
+	$(CC) -c $(CFLAGS) $(GTK_CFLAGS) xpdq_job.c
+xpdq_main.o: xpdq_main.c rc_items.h parse_rc.h list.h job.h util.h printer.h xpdq.h reaper.h argument.h option.h shepherd.h
+	$(CC) -c $(CFLAGS) $(GTK_CFLAGS) xpdq_main.c
+xpdq_option.o: xpdq_option.c rc_items.h parse_rc.h list.h job.h util.h printer.h xpdq.h reaper.h argument.h option.h
+	$(CC) -c $(CFLAGS) $(GTK_CFLAGS) xpdq_option.c
+xpdq_preferences.o: xpdq_preferences.c
+	$(CC) -c $(CFLAGS) $(GTK_CFLAGS) xpdq_preferences.c
+xpdq_printer.o: xpdq_printer.c xpdq.h util.h list.h driver.h interface.h printer.h argument.h
+	$(CC) -c $(CFLAGS) $(GTK_CFLAGS) xpdq_printer.c
+xpdq_wizard.o: xpdq_wizard.c xpdq.h util.h list.h driver.h interface.h printer.h argument.h
+	$(CC) -c $(CFLAGS) $(GTK_CFLAGS) xpdq_wizard.c

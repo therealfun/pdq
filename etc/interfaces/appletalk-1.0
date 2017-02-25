@@ -1,0 +1,27 @@
+interface appletalk {
+
+   help "The AppleTalk driver requires AppleTalk kernel support and the
+         netatalk package.  It can be used to print directly to AppleTalk
+         printers."
+
+   # Someone should write a verify_exec that checks for AppleTalk kernel
+   # support.  How to do this?
+   # verify_exec {} 
+
+   requires "pap"  # This is part of the netatalk package.
+
+   required_args "NBP_PRINTER_NAME"
+
+   argument { 
+      var = "NBP_PRINTER_NAME"
+      desc = "AppleTalk printer name"
+      help = "This is the AppleTalk name of the printer.  You may use the
+              command \"% nbp = \" to list available AppleTalk resources." 
+   }
+
+   send_exec { pap -c -p "$NBP_PRINTER_NAME" $INPUT }
+   #status_exec {}
+   #cancel_exec {}
+ 
+}
+

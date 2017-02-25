@@ -1,0 +1,44 @@
+interface efax {
+   help "This interface uses the efax package's fax program to send a
+         fax.  You should first get efax's \"fax send\" working by
+         itself by editing the file /etc/efax.rc and testing.  Connect
+         this interface to a generic postscript driver to define a
+         fax machine \"printer\"." 
+
+   requires { "efax" "fax" }
+
+   argument {
+      var = "PHONE_NUMBER"
+      desc = "Phone Number"
+      help = "The phone number to dial.  Prefixes like 9 ought to be
+              defined in your /etc/efax.rc file."
+   }
+
+   option {
+      var = "RESOLUTION"
+      desc = "Fax resolution"
+      default_choice = "high"
+      choice "low" {
+         value = "-l"
+         desc = "Low"
+         help = "Low resolution on a fax is 96lpi."         
+      }
+      choice "high" {
+         value = ""
+         desc = "High"
+         help = "High resolution on a fax is 192lpi."         
+      }
+   }
+
+   send_exec { 
+     if [ "x$PHONE_NUMBER" != "x" ] 
+     then
+          fax send $RESOLUTION $PHONE_NUMBER $INPUT
+     else 
+       echo 'You must specify a phone number!'
+          false
+     fi
+   }
+
+}
+

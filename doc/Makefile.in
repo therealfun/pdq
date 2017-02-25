@@ -1,0 +1,95 @@
+
+# Copyright 1999 Jacob A. Langford
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2, as 
+# published by the Free Software Foundation.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+SHELL = /bin/sh
+top_srcdir = @top_srcdir@
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+.SUFFIXES: .c .o
+
+OPT=-g -O
+
+AR = ar
+AR_FLAGS = rc
+RANLIB = @RANLIB@
+
+CC = @CC@
+CFLAGS = -I. @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+INSTALL = @INSTALL@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+mandir = $(exec_prefix)/man
+libdir = $(prefix)/lib
+infodir = $(prefix)/info
+
+OBJS=
+DOCS=
+MISC=
+LIB_OBJS=
+
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_CONFIG = @GLIB_CONFIG@
+GLIB_LIBS = @GLIB_LIBS@
+GTK_CFLAGS = @GTK_CFLAGS@
+GTK_CONFIG = @GTK_CONFIG@
+GTK_LIBS = @GTK_LIBS@
+
+.c.o:
+	$(CC) -c $(GTK_CFLAGS) $<
+
+
+all:
+	echo "Documentation... make."
+
+install: all
+	$(top_srcdir)/mkinstalldirs $(mandir)/man1
+	$(top_srcdir)/mkinstalldirs $(mandir)/man5
+	$(INSTALL) pdq.1 $(mandir)/man1/pdq.1
+	$(INSTALL) xpdq.1 $(mandir)/man1/xpdq.1
+	$(INSTALL) lpd_print.1 $(mandir)/man1/lpd_print.1
+	$(INSTALL) lpd_cancel.1 $(mandir)/man1/lpd_cancel.1
+	$(INSTALL) lpd_status.1 $(mandir)/man1/lpd_status.1
+	$(INSTALL) printrc.5 $(mandir)/man5/printrc.5
+
+uninstall:
+	/bin/rm -f $(mandir)/man1/pdq.1
+	/bin/rm -f $(mandir)/man1/xpdq.1
+	/bin/rm -f $(mandir)/man1/lpd_print.1
+	/bin/rm -f $(mandir)/man1/lpd_cancel.1
+	/bin/rm -f $(mandir)/man1/lpd_status.1
+	/bin/rm -f $(mandir)/man5/printrc.5
+
+clean:
+	/bin/rm -f core *.o $(OBJS) $(LIB_OBJS)
+
+distclean: clean
+	/bin/rm -f Makefile config.h config.status config.cache config.log 
+
+mostlyclean: clean
+
+html: 
+	nroff -man pdq.1 | ./man2html > pdq.1.html
+	nroff -man xpdq.1 | ./man2html > xpdq.1.html
+	nroff -man printrc.5 | ./man2html > printrc.5.html
+	nroff -man lpd_print.1 | ./man2html > lpd_print.1.html
+	nroff -man lpd_cancel.1 | ./man2html > lpd_cancel.1.html
+	nroff -man lpd_status.1 | ./man2html > lpd_status.1.html
+
+maintainer-clean: clean

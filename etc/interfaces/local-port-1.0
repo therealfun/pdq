@@ -1,0 +1,41 @@
+interface local-port {
+
+   help = "Use this interface if your printer is connected 
+           to the serial or parallel port of your computer."
+
+   required_args "PORT"
+
+   argument {
+      var = "PORT"
+      desc = "Name of device" 
+      help = "In Linux, /dev/ttyS0 to /dev/ttyS3 correspond to com1 to com4,
+         and /dev/lp0 to /dev/lp2 correspond to parallel ports 1-3.  For 
+         other systems consult your documentation."
+   }
+
+   option {
+      var = "SEND_EOF"
+      desc = "End of file handling" 
+      choice "no_send_eof" { 
+         value = "NO"
+         desc = "Don't send EOF"
+         help = "Some printers need EOF characters 
+                 to know the job has finished"
+      }
+      choice "send_eof" { 
+         value = "YES" 
+         desc = "Send EOF" 
+         help = "Some printers need EOF characters 
+                 to know the job has finished"
+      }
+   }
+
+   send_exec { touch $INPUT.trailer
+      if [ "$SEND_EOF" = "YES" ]; then
+         printf "\015\014\004" >> $INPUT.trailer
+      fi
+      cat $INPUT $INPUT.trailer > $PORT
+   }
+
+}
+

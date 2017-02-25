@@ -1,0 +1,31 @@
+.TH LPD_STATUS 1 "APRIL 1999" Linux "pdq printing manuals"
+.SH NAME
+lpd_status \- display status and entries of a remote lpd print queue
+.SH SYNOPSIS
+.BI "lpd_status [-l] [-v] " queue @ host " | " host " [" queue ]
+.SH DESCRIPTION
+.B lpd_status 
+retrieves the status and queued entries from the BSD line printer daemon at 
+.IR host .
+The status of 
+.IR queue is checked,
+or 
+.I lp
+if not specified.  
+
+To be compliant with RFC-1179, this program must run SUID root, so that
+a privileged outbound port may be used.  However, many lpd servers found on
+networked printers do not enforce this requirement.
+.SH OPTIONS
+.IP "-l"
+Request the long form of the queue.
+.IP -v
+Print warnings and fatal errors.
+.IP -vv
+Print warnings, fatal errors, and informative messages.
+.IP -vvv
+Print everything (debug level).
+.SH AUTHOR
+Jacob A. Langford <langford@uiuc.edu>
+.SH SEE ALSO
+lpd_print(1), lpd_cancel(1), RFC-1179
