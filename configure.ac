@@ -26,14 +26,14 @@ AC_CHECK_FUNCS(gethostname mkdir mkfifo regcomp select socket strerror strstr st
 GTK_OBJS=xpdq
 GTK_INSTALL_OBJS=xpdq_install
 
-AM_PATH_GLIB(1.2.0, , GTK_OBJS='' GTK_INSTALL_OBJS=''
-	AC_MSG_WARN(Warning. Glib >= 1.2.0 is not installed.  
+AM_PATH_GLIB_2_0(, , GTK_OBJS='' GTK_INSTALL_OBJS=''
+	AC_MSG_WARN(Warning. Glib >= 2.0 is not installed.  
 	
 	*** xpdq will not be built ***
 	
 	) )
-AM_PATH_GTK(1.2.0, , GTK_OBJS='' GTK_INSTALL_OBJS=''
-	AC_MSG_WARN(Warning. GTK >= 1.2.0 is not installed.  
+AM_PATH_GTK_2_0(, , GTK_OBJS='' GTK_INSTALL_OBJS=''
+	AC_MSG_WARN(Warning. GTK >= 2.0 is not installed.  
 	
 	*** xpdq will not be built ***
 	
