@@ -99,7 +99,7 @@ install: all
 	@for dir in ${dirs}; do \
 	$(top_srcdir)/mkinstalldirs $$dir; done
 	@for file in ${files}; do \
-	$(INSTALL) $$file $(pdqlibdir)/$$file; done
+	$(INSTALL) -m 0644 $$file $(pdqlibdir)/$$file; done
 
 uninstall:
 	/bin/rm -f $(pdqlibdir)/interfaces

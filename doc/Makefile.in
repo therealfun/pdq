@@ -61,12 +61,12 @@ all:
 install: all
 	$(top_srcdir)/mkinstalldirs $(mandir)/man1
 	$(top_srcdir)/mkinstalldirs $(mandir)/man5
-	$(INSTALL) pdq.1 $(mandir)/man1/pdq.1
-	$(INSTALL) xpdq.1 $(mandir)/man1/xpdq.1
-	$(INSTALL) lpd_print.1 $(mandir)/man1/lpd_print.1
-	$(INSTALL) lpd_cancel.1 $(mandir)/man1/lpd_cancel.1
-	$(INSTALL) lpd_status.1 $(mandir)/man1/lpd_status.1
-	$(INSTALL) printrc.5 $(mandir)/man5/printrc.5
+	$(INSTALL) -m 0644 pdq.1 $(mandir)/man1/pdq.1
+	$(INSTALL) -m 0644 xpdq.1 $(mandir)/man1/xpdq.1
+	$(INSTALL) -m 0644 lpd_print.1 $(mandir)/man1/lpd_print.1
+	$(INSTALL) -m 0644 lpd_cancel.1 $(mandir)/man1/lpd_cancel.1
+	$(INSTALL) -m 0644 lpd_status.1 $(mandir)/man1/lpd_status.1
+	$(INSTALL) -m 0644 printrc.5 $(mandir)/man5/printrc.5
 
 uninstall:
 	/bin/rm -f $(mandir)/man1/pdq.1
