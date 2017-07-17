@@ -1,0 +1,107 @@
+BINDIR       := /usr/bin
+ETCDIR       := /etc
+MANDIR       := /usr/share/man
+PRINTRC_FILE := $(ETCDIR)/pdq/printrc
+RM           := rm -f
+GTK_CFLAGS   := -DGTK_ENABLE_BROKEN $(shell pkg-config --cflags gtk+-2.0 2>/dev/null)
+GTK_LIBS     := $(shell pkg-config --libs gtk+-2.0 2>/dev/null)
+CFLAGS_SRC   := -Isrc -DPRINTRC_FILE=\"$(PRINTRC_FILE)\"
+CFLAGS_LPD   := -Ilpd
+CC           := gcc
+
+OUTPUT_SRC := src/pdq
+ifdef GTK_LIBS
+OUTPUT_SRC += src/xpdq
+endif
+OUTPUT_LPD := lpd/lpd_cancel lpd/lpd_print lpd/lpd_status
+OUTPUT_DOC := $(patsubst %.in,%,$(wildcard doc/[a-z]*.in))
+MAN_FILES  := $(patsubst %,doc/%.1,pdq xpdq lpd_print lpd_cancel lpd_status) doc/printrc.5
+OUTPUT_ETC := etc/printrc.example
+ETC_FILES  := $(OUTPUT_ETC) $(wildcard etc/interfaces/*) $(wildcard etc/drivers/*/*)
+
+all: $(OUTPUT_ETC) $(OUTPUT_DOC) $(OUTPUT_LPD) $(OUTPUT_SRC)
+
+install: all
+	for x in $(OUTPUT_SRC); do \
+		install -Dm755 $$x $(DESTDIR)$(BINDIR)/$${x#*/}; \
+	done
+	for x in $(OUTPUT_LPD); do \
+		install -o root -Dm4755 $$x $(DESTDIR)$(BINDIR)/$${x#*/}; \
+	done
+	for x in $(MAN_FILES) $(MAN5_FILES); do \
+		install -Dm644 $$x $(DESTDIR)$(MANDIR)/man$${x##*.}/$${x#*/}; \
+	done
+	for x in $(ETC_FILES); do \
+		install -Dm644 $$x $(DESTDIR)$(ETCDIR)/pdq/$${x#etc/}; \
+	done
+
+uninstall:
+	for x in $(OUTPUT_SRC) $(OUTPUT_LPD); do \
+		$(RM) $(DESTDIR)$(BINDIR)/$${x#*/}; \
+	done
+	for x in $(MAN_FILES); do \
+		$(RM) $(DESTDIR)$(MANDIR)/man$${x##*.}/$${x#*/}; \
+	done
+	for x in $(ETC_FILES); do \
+		$(RM) $(DESTDIR)$(ETCDIR)/pdq/$${x#etc/}; \
+	done
+	find $(DESTDIR)$(ETCDIR)/pdq -type d -empty -delete
+
+clean:
+	-$(RM)         $(OUTPUT_ETC) 2>/dev/null
+	-$(RM)         $(OUTPUT_DOC) 2>/dev/null
+	-$(RM) lpd/*.o $(OUTPUT_LPD) 2>/dev/null
+	-$(RM) src/*.o $(OUTPUT_SRC) 2>/dev/null
+
+.PHONY = all install uninstall clean
+
+src/pdq src/xpdq: $(patsubst %.c,src/%.o,argument.c\
+	driver.c\
+	environment.c\
+	interface.c\
+	job.c\
+	lex.c\
+	list.c\
+	option.c\
+	parse.c\
+	parse_rc.c\
+	shepherd.c\
+	printer.c\
+	rc_items.c\
+	reaper.c\
+	util.c)
+
+src/pdq: $(patsubst %.c,src/%.o,pdq_main.c pdq_usage.c)
+	$(CC) $(CFLAGS_SRC) $(CFLAGS) -o $@ $^
+
+XPDQ_OBJS := $(patsubst %.c,src/%.o,xpdq_job.c\
+		xpdq_main.c\
+		xpdq_option.c\
+		xpdq_preferences.c\
+		xpdq_printer.c\
+		xpdq_wizard.c)
+
+src/xpdq: $(XPDQ_OBJS)
+	$(CC) -o $@ $(CFLAGS_SRC) $(CFLAGS) $(GTK_CFLAGS) $^ $(GTK_LIBS)
+
+src/%.o: src/%.c
+	$(CC) -c $(CFLAGS_SRC) $(CFLAGS) -o $@ $<
+
+$(XPDQ_OBJS): src/%.o: src/%.c
+	$(CC) -c $(CFLAGS_SRC) $(CFLAGS) $(GTK_CFLAGS) -o $@ $(basename $@).c
+
+lpd/lpd_print:  lpd/lpd_print.o  lpd/lpd_interface.o
+lpd/lpd_cancel: lpd/lpd_cancel.o lpd/lpd_interface.o
+lpd/lpd_status: lpd/lpd_status.o lpd/lpd_interface.o
+
+$(OUTPUT_LPD):
+	$(CC) $(CFLAGS_LPD) $(CFLAGS) -o $@ $^
+
+lpd/%.o: lpd/%.c
+	$(CC) -c $(CFLAGS_LPD) $(CFLAGS) -o $@ $<
+
+$(OUTPUT_DOC): %: %.in
+	sed "s,@printrc_file@,$(PRINTRC_FILE),g" < $< > $@
+
+etc/%: etc/%.in
+	sed "s,@pdqlibdir@,$(ETCDIR)/pdq,g" < $< > $@
