@@ -133,7 +133,7 @@ void xpdq_cancel_print_job (void) {
 	       return;
 	    }
 	    sprintf (job_log_file, "%s.log", job->job_base);
-	    fd = open (job_log_file, O_CREAT | O_APPEND | O_WRONLY);
+	    fd = open (job_log_file, O_CREAT | O_APPEND | O_WRONLY, 0600);
 	    free (job_log_file);
 	    if (fd == -1) {
 	       fprintf  (stderr, "Error opening job log file: "
