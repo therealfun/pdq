@@ -26,7 +26,8 @@ install: all
 		install -Dm755 $$x $(DESTDIR)$(BINDIR)/$${x#*/}; \
 	done
 	for x in $(OUTPUT_LPD); do \
-		install -o root -Dm4755 $$x $(DESTDIR)$(BINDIR)/$${x#*/}; \
+		install -o root -Dm755 $$x $(DESTDIR)$(BINDIR)/$${x#*/}; \
+		test -z "$$LPD_SUID" || chmod u+s $(DESTDIR)$(BINDIR)/$${x#*/}; \
 	done
 	for x in $(MAN_FILES) $(MAN5_FILES); do \
 		install -Dm644 $$x $(DESTDIR)$(MANDIR)/man$${x##*.}/$${x#*/}; \
